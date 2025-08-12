@@ -1,10 +1,10 @@
 package main
 
 import (
+	"liblink/internal/global"
+	_ "liblink/internal/global"
+	"liblink/internal/router"
 	"log"
-	"papergen/internal/global"
-	_ "papergen/internal/global"
-	"papergen/internal/router"
 )
 
 func main() {

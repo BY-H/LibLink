@@ -6,11 +6,11 @@ import (
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
+	"liblink/internal/controllers/message"
+	"liblink/internal/global"
+	"liblink/internal/middleware"
+	"liblink/internal/models/user"
 	"net/http"
-	"papergen/internal/controllers/message"
-	"papergen/internal/global"
-	"papergen/internal/middleware"
-	"papergen/internal/models/user"
 )
 
 func Login(c *gin.Context) {

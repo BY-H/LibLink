@@ -1,4 +1,4 @@
-# papergen-ui 试卷生成系统前端
+# liblink-ui 试卷生成系统前端
 
 ## 架构
 

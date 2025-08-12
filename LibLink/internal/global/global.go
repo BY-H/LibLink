@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
+	"liblink/config"
+	"liblink/internal/db"
 	"os"
-	"papergen/config"
-	"papergen/internal/db"
 )
 
 var (

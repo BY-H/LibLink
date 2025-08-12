@@ -2,8 +2,8 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
-	"papergen/internal/controllers/api"
-	"papergen/internal/middleware"
+	"liblink/internal/controllers/api"
+	"liblink/internal/middleware"
 )
 
 func Router() *gin.Engine {

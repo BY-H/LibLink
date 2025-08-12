@@ -1,4 +1,4 @@
-module papergen
+module liblink
 
 go 1.23.5
 

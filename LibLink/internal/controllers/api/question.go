@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
+	"liblink/internal/controllers/message"
+	"liblink/internal/global"
+	"liblink/internal/models/question"
+	"liblink/pkg/utils"
 	"net/http"
-	"papergen/internal/controllers/message"
-	"papergen/internal/global"
-	"papergen/internal/models/question"
-	"papergen/pkg/utils"
 	"strings"
 )
 

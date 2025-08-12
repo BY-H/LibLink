@@ -5,14 +5,14 @@ import (
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
-	"papergen/internal/models/paper"
-	"papergen/internal/models/question"
-	"papergen/internal/models/system"
-	"papergen/internal/models/user"
+	"liblink/internal/models/paper"
+	"liblink/internal/models/question"
+	"liblink/internal/models/system"
+	"liblink/internal/models/user"
 )
 
 func InitDB(host string, username string, password string) (*gorm.DB, error) {
-	dsn := fmt.Sprintf("%s:%s@tcp(%s)/papergen?charset=utf8&parseTime=True", username, password, host)
+	dsn := fmt.Sprintf("%s:%s@tcp(%s)/liblink?charset=utf8&parseTime=True", username, password, host)
 	return initDB(dsn)
 }
 

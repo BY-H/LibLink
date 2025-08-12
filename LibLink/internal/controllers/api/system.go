@@ -3,11 +3,11 @@ package api
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"liblink/internal/controllers/message"
+	"liblink/internal/global"
+	"liblink/internal/models/system"
+	"liblink/internal/models/user"
 	"net/http"
-	"papergen/internal/controllers/message"
-	"papergen/internal/global"
-	"papergen/internal/models/system"
-	"papergen/internal/models/user"
 )
 
 func Notifications(c *gin.Context) {

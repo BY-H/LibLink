@@ -4,7 +4,7 @@
             <el-col :span="24">
                 <el-card class="box-card">
                     <div slot="header" class="clearfix">
-                        <span>欢迎来到 Papergen</span>
+                        <span>欢迎来到 liblink</span>
                     </div>
                     <div class="text item">欢迎使用高效、快捷的组卷系统</div>
                 </el-card>
@@ -85,7 +85,7 @@ const fetchSummaryData = async () => {
 const announcements = ref([
     {
         title: '系统公告',
-        content: '欢迎使用 Papergen，这是一个高效、快捷的组卷系统。'
+        content: '欢迎使用 liblink，这是一个高效、快捷的组卷系统。'
     }
 ])
 

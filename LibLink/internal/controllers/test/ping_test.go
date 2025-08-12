@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/assert/v2"
+	"liblink/internal/controllers/api"
 	"net/http"
 	"net/http/httptest"
-	"papergen/internal/controllers/api"
 	"testing"
 )
 

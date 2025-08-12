@@ -13,7 +13,7 @@ cmd = "make build"
 # Array of commands to run after ^C
 post_cmd = []
 # Binary file yields from `cmd`.
-bin = "_output/papergen"
+bin = "_output/liblink"
 # Customize binary, can setup environment variables when run your app.
 # Add additional arguments when running binary (bin/full_bin). Will run './tmp/main hello world'.
 args_bin = ["hello", "world"]

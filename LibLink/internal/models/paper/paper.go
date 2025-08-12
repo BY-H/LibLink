@@ -6,7 +6,7 @@ import (
 	"github.com/carmel/gooxml/schema/soo/wml"
 	"gorm.io/datatypes"
 	"gorm.io/gorm"
-	"papergen/internal/models/question"
+	"liblink/internal/models/question"
 )
 
 type Paper struct {

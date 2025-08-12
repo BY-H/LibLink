@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
+	"liblink/internal/global"
 	"net/http"
-	"papergen/internal/global"
 	"strings"
 	"time"
 )

@@ -1,6 +1,6 @@
 .PHONY: build
 build:
-	@go build -o _output/papergen cmd/papergen/main.go
+	@go build -o _output/liblink cmd/liblink/main.go
 
 .PHONY: format
 format:

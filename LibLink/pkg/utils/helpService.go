@@ -3,7 +3,7 @@ package utils
 import (
 	"crypto/rand"
 	"encoding/base64"
-	"papergen/internal/global"
+	"liblink/internal/global"
 	"strconv"
 	"strings"
 )

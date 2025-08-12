@@ -1,4 +1,4 @@
-# papergen 试卷生成系统
+# LibLink 文献管理系统
 
 ## 架构
 
@@ -12,9 +12,9 @@
 
 在 Windows 下，可以通过安装Go环境，然后直接编译项目：
 
-`go build -o _output/papergen.exe cmd/papergen/main.go`
+`go build -o _output/liblink.exe cmd/liblink/main.go`
 
-运行对应的 `_output/papergen.exe` 即可完成部署
+运行对应的 `_output/liblink.exe` 即可完成部署
 
 #### Linux
 
@@ -26,6 +26,6 @@
 
 采用 docker 进行项目的部署
 
-`docker build -t papergen .`
+`docker build -t liblink .`
 
-`docker run -d -p 1020:1020 papergen`
+`docker run -d -p 1020:1020 liblink`
