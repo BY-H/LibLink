@@ -3,14 +3,15 @@ package api
 import (
 	"errors"
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"golang.org/x/crypto/bcrypt"
-	"gorm.io/gorm"
 	"liblink/internal/controllers/message"
 	"liblink/internal/global"
 	"liblink/internal/middleware"
 	"liblink/internal/models/user"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
+	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 )
 
 func Login(c *gin.Context) {
@@ -35,7 +36,6 @@ func Login(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"token": token})
 
-	return
 }
 
 // checkUser 检验用户
@@ -86,7 +86,8 @@ func Register(c *gin.Context) {
 
 	addUser(u)
 	c.JSON(http.StatusOK, gin.H{
-		"msg": "register successfully",
+		"status": 200,
+		"msg":    "register successfully",
 	})
 }
 

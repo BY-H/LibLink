@@ -3,8 +3,6 @@ package api
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"gorm.io/datatypes"
 	"liblink/internal/controllers/message"
 	"liblink/internal/global"
 	"liblink/internal/models/paper"
@@ -12,6 +10,9 @@ import (
 	"liblink/pkg/utils"
 	"net/http"
 	"strings"
+
+	"github.com/gin-gonic/gin"
+	"gorm.io/datatypes"
 )
 
 // Papers 返回用户创建过的试卷
@@ -36,7 +37,6 @@ func Papers(c *gin.Context) {
 		"list":      papers,
 	})
 
-	return
 }
 
 // PapersSummary 试卷简要汇总信息

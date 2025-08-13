@@ -4,9 +4,9 @@
             <el-col :span="24">
                 <el-card class="box-card">
                     <div slot="header" class="clearfix">
-                        <span>欢迎来到 liblink</span>
+                        <span>欢迎来到 LibLink</span>
                     </div>
-                    <div class="text item">欢迎使用高效、快捷的组卷系统</div>
+                    <div class="text item">欢迎使用 LibLink 管理文献</div>
                 </el-card>
             </el-col>
         </el-row>
@@ -15,7 +15,7 @@
                 <el-card class="box-card">
                     <div slot="header" class="clearfix">
                         <el-icon><i class="el-icon-document"></i></el-icon>
-                        <span>题目总数</span>
+                        <span>文献总数</span>
                     </div>
                     <div class="text item">{{ questions }}</div>
                 </el-card>
@@ -24,7 +24,7 @@
                 <el-card class="box-card">
                     <div slot="header" class="clearfix">
                         <el-icon><i class="el-icon-edit"></i></el-icon>
-                        <span>试卷总数</span>
+                        <span>借阅记录总数</span>
                     </div>
                     <div class="text item">{{ papers }}</div>
                 </el-card>
@@ -64,24 +64,6 @@ const papers = ref(0)
 const users = ref(0)
 const questions = ref(0)
 
-const fetchSummaryData = async () => {
-    try {
-        // 获取试卷总数
-        const paperResponse: any = await paperSummary()
-        papers.value = paperResponse.total
-
-        // 获取用户总数
-        const userResponse: any = await userSummary()
-        users.value = userResponse.total
-
-        // 获取题目总数
-        const questionResponse: any = await questionSummary()
-        questions.value = questionResponse.total
-    } catch (error) {
-        console.error('获取统计数据失败:', error)
-    }
-}
-
 const announcements = ref([
     {
         title: '系统公告',
@@ -100,7 +82,6 @@ const getNotificationsData = async () => {
 
 // 在组件挂载时调用
 onMounted(() => {
-    fetchSummaryData()
     getNotificationsData()
 })
 </script>

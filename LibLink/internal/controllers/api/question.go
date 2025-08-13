@@ -3,14 +3,15 @@ package api
 import (
 	"errors"
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 	"liblink/internal/controllers/message"
 	"liblink/internal/global"
 	"liblink/internal/models/question"
 	"liblink/pkg/utils"
 	"net/http"
 	"strings"
+
+	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 func Questions(c *gin.Context) {
@@ -23,7 +24,7 @@ func Questions(c *gin.Context) {
 	}
 	var questions []question.Question
 	fmt.Printf("%v\n", msg.QuestionIds)
-	if msg.QuestionIds != nil && len(msg.QuestionIds) != 0 {
+	if len(msg.QuestionIds) != 0 {
 		global.DB.Where("creator = ? or creator = 'system'", email).Where(&msg.QuestionIds).Find(&questions)
 	} else {
 		global.DB.Where("creator = ? or creator = 'system'", email).Offset(msg.Page - 1).Limit(msg.PageSize).Find(&questions)
@@ -37,7 +38,6 @@ func Questions(c *gin.Context) {
 		"total":     count,
 	})
 
-	return
 }
 
 func AddQuestion(c *gin.Context) {

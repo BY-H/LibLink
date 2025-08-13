@@ -19,34 +19,16 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@/views/Register.vue')
     },
     {
-        path: '/question',
-        name: 'Question',
-        component: () => import('@/views/Question/Question.vue'),
-        meta: { title: '题库管理', icon: 'List' }
-    },
-    {
-        path: '/exam',
-        name: 'Exam',
-        component: () => import('@/views/Exam.vue'),
-        meta: { title: '出卷', icon: 'Edit' }
-    },
-    {
-        path: '/paper',
-        name: 'Paper',
-        component: () => import('@/views/Paper/Paper.vue'),
-        meta: { title: '出题历史', icon: 'Paperclip' }
-    },
-    {
-        path: '/feedback',
-        name: 'Feedback',
-        component: () => import('@/views/Feedback.vue'),
-        meta: { title: '用户反馈', icon: 'Message' }
-    },
-    {
         path: '/user',
         name: 'User',
         component: () => import('@/views/User.vue'),
         meta: { title: '用户管理', icon: 'User' }
+    },
+    {
+        path: '/borrow',
+        name: 'Borrow',
+        component: () => import('@/views/borrow/Borrow.vue'),
+        meta: { title: '文献借阅', icon: 'Reading' }
     }
 ]
 
