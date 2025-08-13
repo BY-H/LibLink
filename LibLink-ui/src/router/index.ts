@@ -19,16 +19,22 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@/views/Register.vue')
     },
     {
-        path: '/user',
-        name: 'User',
-        component: () => import('@/views/User.vue'),
-        meta: { title: '用户管理', icon: 'User' }
-    },
-    {
         path: '/borrow',
         name: 'Borrow',
         component: () => import('@/views/borrow/Borrow.vue'),
         meta: { title: '文献借阅', icon: 'Reading' }
+    },
+    {
+        path: '/archive',
+        name: 'Archive',
+        component: () => import('@/views/archive/Archive.vue'),
+        meta: { title: '文献入库', icon: 'Folder' }
+    },
+    {
+        path: '/user',
+        name: 'User',
+        component: () => import('@/views/User.vue'),
+        meta: { title: '用户管理', icon: 'User' }
     }
 ]
 

@@ -57,8 +57,6 @@
 import { ref, onMounted } from 'vue'
 import { getNotifications } from '@/api/system'
 import { summary as userSummary } from '@/api/user'
-import { summary as questionSummary } from '@/api/question'
-import { summary as paperSummary } from '@/api/paper'
 
 const papers = ref(0)
 const users = ref(0)
