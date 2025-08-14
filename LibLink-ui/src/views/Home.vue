@@ -62,12 +62,12 @@ const papers = ref(0)
 const users = ref(0)
 const questions = ref(0)
 
-const announcements = ref([
-    {
-        title: '系统公告',
-        content: '欢迎使用 liblink，这是一个高效、快捷的组卷系统。'
-    }
-])
+interface Announcement {
+    title: string
+    content: string
+}
+
+const announcements = ref<Announcement[]>([])
 
 const getNotificationsData = async () => {
     try {
