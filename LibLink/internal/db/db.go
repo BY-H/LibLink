@@ -2,13 +2,12 @@ package db
 
 import (
 	"fmt"
+	"liblink/internal/models/system"
+	"liblink/internal/models/user"
+
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
-	"liblink/internal/models/paper"
-	"liblink/internal/models/question"
-	"liblink/internal/models/system"
-	"liblink/internal/models/user"
 )
 
 func InitDB(host string, username string, password string) (*gorm.DB, error) {
@@ -27,10 +26,7 @@ func initDB(dsn string) (*gorm.DB, error) {
 	// 自动迁移
 	err = db.AutoMigrate(
 		&user.User{},
-		&question.Question{},
-		&paper.Paper{},
 		&system.Notification{},
-		&system.Feedback{},
 	)
 	fmt.Printf("test db init\n")
 	if err != nil {

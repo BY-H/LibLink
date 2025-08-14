@@ -1,9 +1,10 @@
 package router
 
 import (
-	"github.com/gin-gonic/gin"
 	"liblink/internal/controllers/api"
 	"liblink/internal/middleware"
+
+	"github.com/gin-gonic/gin"
 )
 
 func Router() *gin.Engine {
@@ -36,26 +37,6 @@ func Router() *gin.Engine {
 				feedback.GET("/list", api.Feedbacks)
 				feedback.POST("/add", api.AddFeedback)
 			}
-		}
-		// 试卷相关
-		papers := authRoutes.Group("/papers")
-		{
-			papers.GET("/list", api.Papers)
-			papers.GET("/summary", api.PapersSummary)
-			papers.POST("/auto_create", api.AutoCreatePaper)
-			papers.POST("/manual_create", api.ManualCreatePaper)
-			papers.DELETE("/delete", api.DeletePaper)
-			papers.POST("/export", api.ExportPaper)
-		}
-		// 试题相关
-		questions := authRoutes.Group("/questions")
-		{
-			questions.GET("/list", api.Questions)
-			questions.GET("/summary", api.QuestionSummary)
-			questions.POST("/add", api.AddQuestion)
-			questions.PATCH("/edit", api.EditQuestion)
-			questions.DELETE("/delete", api.DeleteQuestion)
-			questions.GET("/tags", api.QuestionTags)
 		}
 	}
 
