@@ -32,11 +32,6 @@ func Router() *gin.Engine {
 				notification.GET("/list", api.Notifications)
 				notification.POST("/add", api.AddNotification)
 			}
-			feedback := system.Group("/feedbacks")
-			{
-				feedback.GET("/list", api.Feedbacks)
-				feedback.POST("/add", api.AddFeedback)
-			}
 		}
 	}
 

@@ -2,6 +2,7 @@ package db
 
 import (
 	"fmt"
+	"liblink/internal/models/archive"
 	"liblink/internal/models/system"
 	"liblink/internal/models/user"
 
@@ -27,6 +28,8 @@ func initDB(dsn string) (*gorm.DB, error) {
 	err = db.AutoMigrate(
 		&user.User{},
 		&system.Notification{},
+		&archive.Folder{},
+		&archive.Archive{},
 	)
 	fmt.Printf("test db init\n")
 	if err != nil {
