@@ -1,14 +1,16 @@
 package middleware
 
 import (
+	"context"
 	"errors"
 	"fmt"
-	"github.com/dgrijalva/jwt-go"
-	"github.com/gin-gonic/gin"
 	"liblink/internal/global"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/dgrijalva/jwt-go"
+	"github.com/gin-gonic/gin"
 )
 
 const Issuer = "abing"
@@ -49,6 +51,10 @@ func ParseClaimsToken(tokenStr string) (*JWTClaim, error) {
 	return nil, errors.New("invalid token")
 }
 
+type contextKey string
+
+const ContextEmailKey contextKey = "email"
+
 func JWTAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if c.Request.Method == "OPTIONS" {
@@ -81,9 +87,19 @@ func JWTAuth() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
+		// 把 email 存入标准 context
+		ctx := context.WithValue(c.Request.Context(), ContextEmailKey, claims.Email)
+		c.Request = c.Request.WithContext(ctx)
 
-		c.Set("email", claims.Email)
 		c.Next()
 		// 后续的处理函数可以通过c.Get("email")来获取当前请求的用户邮箱信息
 	}
+}
+
+// 在 handler 或 service 里获取 email
+func GetEmail(c *gin.Context) string {
+	if email, ok := c.Request.Context().Value(ContextEmailKey).(string); ok {
+		return email
+	}
+	return ""
 }

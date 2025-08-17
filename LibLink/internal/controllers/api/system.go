@@ -2,12 +2,14 @@ package api
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"liblink/internal/controllers/message"
 	"liblink/internal/global"
+	"liblink/internal/middleware"
 	"liblink/internal/models/system"
 	"liblink/internal/models/user"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 func Notifications(c *gin.Context) {
@@ -21,8 +23,7 @@ func Notifications(c *gin.Context) {
 }
 
 func AddNotification(c *gin.Context) {
-	e, _ := c.Get("email")
-	email := e.(string)
+	email := middleware.GetEmail(c)
 	err := checkRole(email)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -32,6 +33,12 @@ func AddNotification(c *gin.Context) {
 	}
 	msg := &message.AddNotificationMsg{}
 	err = c.BindJSON(&msg)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
 
 	n := system.Notification{
 		Type:    msg.Type,
