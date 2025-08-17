@@ -14,9 +14,3 @@ func CreateArchive(c *gin.Context) {
 		"message": "创建档案",
 	})
 }
-
-func DeleteArchive(c *gin.Context) {
-	c.JSON(200, gin.H{
-		"message": "删除档案",
-	})
-}
