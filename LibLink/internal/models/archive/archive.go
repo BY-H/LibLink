@@ -23,25 +23,44 @@ type Folder struct {
 	GroupPermission string `gorm:"column:group_permission;comment:'用户组权限,自动继承父文件夹权限,需要有其中所有权限才能够访问该文件夹'" json:"group_permission"`
 }
 
-// FileFolders 用于查询文件夹和档案的结构体
+// FileFolders 用于查询文件夹和档案的树形结构
 type FileFolders struct {
-	FileFolders []FileFolders `json:"file_folders"` // 文件夹列表
-	Archives    []Archive     `json:"archives"`     // 当前文件夹下的档案列表
+	Folder   Folder        `json:"folder"`   // 当前文件夹信息
+	Children []FileFolders `json:"children"` // 子文件夹列表
+	Archives []Archive     `json:"archives"` // 当前文件夹下的档案列表
 }
 
-func GetFoldersAndFilesByParentID(DB *gorm.DB, parentID uint, permission string) (*FileFolders, error) {
-	var fileFolders FileFolders
-	var archives []Archive
-	// 查询当前文件夹底下的所有文件
-	err := DB.Model(&Archive{}).Where("parent_id = ? AND FIND_IN_SET(?, group_permission)", parentID, permission).Find(&archives).Error
-	if err != nil {
+func GetFoldersAndFilesByParentID(DB *gorm.DB, parentID uint, permission string) ([]FileFolders, error) {
+	var result []FileFolders
+
+	// 查询当前层级的所有文件夹
+	var folders []Folder
+	if err := DB.Where("parent_id = ? AND FIND_IN_SET(?, group_permission)", parentID, permission).Find(&folders).Error; err != nil {
 		return nil, err
 	}
-	// 查询当前文件夹底下的所有文件夹
-	err = DB.Model(&Folder{}).Where("parent_id = ? AND FIND_IN_SET(?, group_permission)", parentID, permission).Find(&fileFolders).Error
-	if err != nil {
-		return nil, err
+
+	// 遍历每个文件夹，递归查询
+	for _, f := range folders {
+		node := FileFolders{
+			Folder: f,
+		}
+
+		// 查询该文件夹下的档案
+		var archives []Archive
+		if err := DB.Where("folder_id = ? AND FIND_IN_SET(?, ?)", f.ID, permission, f.GroupPermission).Find(&archives).Error; err != nil {
+			return nil, err
+		}
+		node.Archives = archives
+
+		// 递归查询子文件夹
+		children, err := GetFoldersAndFilesByParentID(DB, f.ID, permission)
+		if err != nil {
+			return nil, err
+		}
+		node.Children = children
+
+		result = append(result, node)
 	}
-	fileFolders.Archives = archives
-	return &fileFolders, nil
+
+	return result, nil
 }
