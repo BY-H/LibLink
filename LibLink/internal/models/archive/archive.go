@@ -2,6 +2,7 @@ package archive
 
 import (
 	"errors"
+	"strings"
 
 	"gorm.io/gorm"
 )
@@ -33,6 +34,32 @@ type FileFolders struct {
 	Folder   Folder        `json:"folder"`   // 当前文件夹信息
 	Children []FileFolders `json:"children"` // 子文件夹列表
 	Archives []Archive     `json:"archives"` // 当前文件夹下的档案列表
+}
+
+// CheckPermission 检查用户组是否包含资源所需的权限
+// resourcePerm 是资源的 GroupPermission (逗号分隔的权限组)
+// userPerm 是用户的 PermissionGroup (逗号分隔的权限组)
+func CheckPermission(resourcePerm string, userPerm string) bool {
+	if resourcePerm == "" {
+		return true // 没有限制
+	}
+
+	resourceGroups := strings.Split(resourcePerm, ",")
+	userGroups := strings.Split(userPerm, ",")
+
+	groupMap := make(map[string]struct{})
+	for _, g := range userGroups {
+		groupMap[strings.TrimSpace(g)] = struct{}{}
+	}
+
+	// 要求 resourceGroups 里的每个权限组都在 userGroups 中
+	for _, rg := range resourceGroups {
+		if _, ok := groupMap[strings.TrimSpace(rg)]; !ok {
+			return false
+		}
+	}
+
+	return true
 }
 
 func GetFoldersAndFilesByParentID(DB *gorm.DB, parentID uint, permission string) ([]FileFolders, error) {

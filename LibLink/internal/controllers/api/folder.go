@@ -15,10 +15,3 @@ func CreateFolder(c *gin.Context) {
 		"message": "创建文件夹",
 	})
 }
-
-func DeleteFolder(c *gin.Context) {
-	// 这里可以添加删除文件夹的逻辑
-	c.JSON(200, gin.H{
-		"message": "删除文件夹",
-	})
-}

@@ -6,10 +6,11 @@ import (
 
 type User struct {
 	gorm.Model
-	Username string `gorm:"column:username;comment:'用户名'"`
-	Password string `gorm:"column:password;comment:'密码'"`
-	Email    string `gorm:"column:email;comment:'email/唯一标识符'"`
-	Role     string `gorm:"column:role;comment:'角色,admin与user';default:user"`
+	Username        string `gorm:"column:username;comment:'用户名'"`
+	Password        string `gorm:"column:password;comment:'密码'"`
+	Email           string `gorm:"column:email;comment:'email/唯一标识符'"`
+	Role            string `gorm:"column:role;comment:'角色,admin与user';default:user"`
+	PermissionGroup string `gorm:"column:permission_group;comment:'用户组权限,逗号分隔'"`
 }
 
 type UserGroup struct {
