@@ -10,7 +10,7 @@
       </template>
 
       <div class="table-actions">
-        <el-button type="primary" @click="handleAdd">
+        <el-button type="primary" @click="openDrawer">
           新增
         </el-button>
       </div>
@@ -61,13 +61,17 @@
         :onUpdate="fetchData"
       />
     </el-card>
+
+    <!-- 新增抽屉组件 -->
+    <BorrowDraw ref="drawerRef" @submit="handleAdd" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from "vue"
-import { Plus } from "@element-plus/icons-vue"
+import { Plus, Reading } from "@element-plus/icons-vue"
 import Pagination from "@/components/Pagination.vue"
+import BorrowDraw from "./components/BorrowDraw.vue"
 
 // 表格数据
 const tableData = ref([
@@ -126,9 +130,17 @@ const handleBorrow = (row: any) => {
   console.log("借阅", row)
 }
 
-const handleAdd = () => {
-  console.log("点击新增")
-  // TODO: 打开新增对话框 / 跳转新增页面
+const drawerRef = ref()
+
+// 点击新增按钮，打开 Drawer
+const openDrawer = () => {
+  drawerRef.value.open()
+}
+
+// 接收新增数据
+const handleAdd = (data: any) => {
+  console.log("新增的数据：", data)
+  // TODO: 调用接口 / 插入表格数据
 }
 </script>
 
