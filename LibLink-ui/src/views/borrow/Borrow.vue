@@ -1,231 +1,164 @@
 <template>
-    <div class="borrow-wrapper">
-        <el-row :gutter="20">
-            <el-col :span="24">
-                <el-card class="box-card">
-                    <template #header>
-                        <div class="card-header">
-                            <el-icon><Reading /></el-icon>
-                            <span>文献借阅</span>
-                        </div>
-                    </template>
-                    <el-form 
-                        ref="formRef"
-                        :model="borrowForm"
-                        :rules="rules"
-                        label-width="120px"
-                    >
-                        <el-form-item label="文献分类" prop="category">
-                            <el-tree-select
-                                v-model="borrowForm.category"
-                                :data="treeData"
-                                placeholder="请选择文献分类"
-                                check-strictly
-                                :render-after-expand="false"
-                            />
-                        </el-form-item>
-                        <el-form-item label="借阅备注" prop="remark">
-                            <el-input 
-                                v-model="borrowForm.remark"
-                                type="textarea"
-                                placeholder="请输入借阅备注（选填）"
-                                :rows="3"
-                            />
-                        </el-form-item>
-                        <el-form-item>
-                            <el-button type="primary" @click="submitForm(formRef)">
-                                确认借阅
-                            </el-button>
-                            <el-button @click="resetForm(formRef)">
-                                <el-icon><RefreshRight /></el-icon>
-                                重置
-                            </el-button>
-                        </el-form-item>
-                    </el-form>
-                </el-card>
-            </el-col>
-        </el-row>
+  <div class="borrow-wrapper">
+    <el-card class="box-card">
+      <!-- 卡片头部 -->
+      <template #header>
+        <div class="card-header">
+          <el-icon><Reading /></el-icon>
+          <span>文献借阅</span>
+        </div>
+      </template>
 
-        <el-row v-if="message" :gutter="20" class="message-row">
-            <el-col :span="24">
-                <el-card class="box-card">
-                    <el-alert
-                        :title="message"
-                        :type="messageType"
-                        show-icon
-                        :closable="true"
-                    />
-                </el-card>
-            </el-col>
-        </el-row>
-    </div>
+      <div class="table-actions">
+        <el-button type="primary" @click="handleAdd">
+          新增
+        </el-button>
+      </div>
+
+      <!-- 表格 -->
+      <el-table :data="tableData" border style="width: 100%; margin-top: 15px;">
+        <el-table-column prop="fileNo" label="档案编号" />
+        <el-table-column prop="contractNo" label="合同编号" />
+        <el-table-column prop="name" label="姓名" />
+        <el-table-column prop="idCard" label="身份证号" />
+        <el-table-column prop="branchNo" label="网点编号" />
+        <el-table-column prop="manager" label="客户经理" />
+        <el-table-column prop="amount" label="合同金额" />
+        <el-table-column prop="storageDate" label="入库日期" />
+
+        <!-- 借阅状态 -->
+        <el-table-column label="借阅状态">
+          <template #default="scope">
+            <el-tag
+              :type="scope.row.borrowStatus === 1 ? 'success' : 'info'"
+              effect="light"
+            >
+              {{ scope.row.borrowStatus === 1 ? '已借阅' : '未借阅' }}
+            </el-tag>
+          </template>
+        </el-table-column>
+
+        <!-- 操作列 -->
+        <el-table-column label="操作" width="150">
+          <template #default="scope">
+            <el-link type="primary" @click="handleDelete(scope.row)">删除</el-link>
+            <el-link
+              type="primary"
+              :disabled="scope.row.borrowStatus === 1"
+              @click="handleBorrow(scope.row)"
+              style="margin-left: 10px"
+            >
+              借阅
+            </el-link>
+          </template>
+        </el-table-column>
+      </el-table>
+
+      <!-- 分页 -->
+      <Pagination
+        v-model:pageObj="pageObj"
+        :total="total"
+        :onUpdate="fetchData"
+      />
+    </el-card>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
-import { Reading, DocumentAdd, RefreshRight } from '@element-plus/icons-vue'
-import type { FormInstance, FormRules } from 'element-plus'
+import { ref } from "vue"
+import { Plus } from "@element-plus/icons-vue"
+import Pagination from "@/components/Pagination.vue"
 
-interface TreeNode {
-    value: string
-    label: string
-    children?: TreeNode[]
-}
+// 表格数据
+const tableData = ref([
+  {
+    fileNo: "FLOANA11",
+    contractNo: "HT12345678",
+    name: "张三",
+    idCard: "350427200001013527",
+    branchNo: "903091001",
+    manager: "张国强",
+    amount: 10000,
+    storageDate: "20250801",
+    borrowStatus: 1,
+  },
+  {
+    fileNo: "FLOANA12",
+    contractNo: "HT87654321",
+    name: "李四",
+    idCard: "350427199901015050",
+    branchNo: "903091101",
+    manager: "张志伟",
+    amount: 100000,
+    storageDate: "20241221",
+    borrowStatus: 1,
+  },
+  {
+    fileNo: "FLOANA13",
+    contractNo: "HT13572468",
+    name: "王五",
+    idCard: "3504271980010102010",
+    branchNo: "903091102",
+    manager: "肖磊",
+    amount: 1000000,
+    storageDate: "20250731",
+    borrowStatus: 0,
+  },
+])
 
-const formRef = ref<FormInstance>()
-const message = ref('')
-const messageType = ref('success')
-
-const borrowForm = reactive({
-    category: '',
-    archiveId: '',
-    duration: '',
-    remark: ''
+// 分页参数
+const pageObj = ref({
+  page: 1,
+  page_size: 10,
 })
+const total = ref(3)
 
-const treeData: TreeNode[] = [
-    {
-        value: '1',
-        label: '计算机科学',
-        children: [
-            {
-                value: '1-1',
-                label: '软件工程',
-                children: [
-                    { value: '1-1-1', label: '软件测试' },
-                    { value: '1-1-2', label: '软件架构' }
-                ]
-            },
-            {
-                value: '1-2',
-                label: '人工智能',
-                children: [
-                    { value: '1-2-1', label: '机器学习' },
-                    { value: '1-2-2', label: '深度学习' }
-                ]
-            }
-        ]
-    },
-    {
-        value: '2',
-        label: '数学',
-        children: [
-            {
-                value: '2-1',
-                label: '基础数学',
-                children: [
-                    { value: '2-1-1', label: '微积分' },
-                    { value: '2-1-2', label: '线性代数' }
-                ]
-            },
-            {
-                value: '2-2',
-                label: '应用数学',
-                children: [
-                    { value: '2-2-1', label: '概率论' },
-                    { value: '2-2-2', label: '数理统计' }
-                ]
-            }
-        ]
-    }
-]
-
-const rules = reactive<FormRules>({
-    category: [
-        { required: true, message: '请选择文献分类', trigger: 'change' }
-    ],
-    archiveId: [
-        { required: true, message: '请输入文献编号', trigger: 'blur' },
-        { min: 3, max: 20, message: '长度在 3 到 20 个字符', trigger: 'blur' }
-    ],
-    duration: [
-        { required: true, message: '请选择借阅时长', trigger: 'change' }
-    ]
-})
-
-const submitForm = async (formEl: FormInstance | undefined) => {
-    if (!formEl) return
-    await formEl.validate((valid) => {
-        if (valid) {
-            // TODO: 调用借阅 API
-            message.value = `已成功借阅 ${getCategoryLabel(borrowForm.category)} 分类下的文献：${borrowForm.archiveId}，借阅时长：${borrowForm.duration}天`
-            messageType.value = 'success'
-            resetForm(formEl)
-        } else {
-            message.value = '请完善借阅信息'
-            messageType.value = 'error'
-        }
-    })
+const fetchData = () => {
+  console.log("分页参数：", pageObj.value)
 }
 
-const resetForm = (formEl: FormInstance | undefined) => {
-    if (!formEl) return
-    formEl.resetFields()
-    message.value = ''
+const handleDelete = (row: any) => {
+  console.log("删除", row)
 }
 
-const getCategoryLabel = (value: string): string => {
-    const findLabel = (nodes: TreeNode[], targetValue: string): string => {
-        for (const node of nodes) {
-            if (node.value === targetValue) return node.label
-            if (node.children) {
-                const label = findLabel(node.children, targetValue)
-                if (label) return label
-            }
-        }
-        return ''
-    }
-    return findLabel(treeData, value)
+const handleBorrow = (row: any) => {
+  if (row.borrowStatus === 1) return
+  console.log("借阅", row)
+}
+
+const handleAdd = () => {
+  console.log("点击新增")
+  // TODO: 打开新增对话框 / 跳转新增页面
 }
 </script>
 
 <style scoped>
 .borrow-wrapper {
-    padding: 20px;
-    background-color: #f5f5f5;
+  padding: 20px;
+  background-color: #f5f5f5;
 }
 
 .box-card {
-    margin-bottom: 20px;
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
 }
 
 .card-header {
-    display: flex;
-    align-items: center;
-    font-size: 18px;
-    font-weight: bold;
-    color: #333;
+  display: flex;
+  align-items: center;
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
 }
 
 .el-icon {
-    margin-right: 10px;
-    color: #409eff;
+  margin-right: 10px;
+  color: #409eff;
 }
 
-.message-row {
-    margin-top: 20px;
-}
-
-:deep(.el-form-item__label) {
-    font-weight: bold;
-    color: #333;
-}
-
-:deep(.el-input), :deep(.el-tree-select), :deep(.el-select) {
-    max-width: 400px;
-    width: 100%;
-}
-
-:deep(.el-button) {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-
-:deep(.el-button + .el-button) {
-    margin-left: 10px;
+.table-actions {
+  justify-content: flex-end;
+  display: flex;
+  margin-bottom: 10px;
 }
 </style>

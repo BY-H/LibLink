@@ -135,3 +135,34 @@ func CreateArchive(c *gin.Context) {
 		"data":    newArc,
 	})
 }
+
+func GetArchives(c *gin.Context) {
+	// 获取当前用户信息
+	email := middleware.GetEmail(c)
+
+	var currentUser user.User
+	if err := global.DB.Where("email = ?", email).First(&currentUser).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(http.StatusUnauthorized, gin.H{"message": "用户不存在"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "数据库错误"})
+		return
+	}
+
+	// 查询档案列表
+	var archives []archive.Archive
+	if err := global.DB.Where("group_permission = ?", currentUser.PermissionGroup).Find(&archives).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "数据库错误"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "获取档案列表成功",
+		"data":    archives,
+	})
+}
+
+func AddArchive(c *gin.Context) {
+
+}

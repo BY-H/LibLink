@@ -25,12 +25,6 @@ const routes: RouteRecordRaw[] = [
         meta: { title: '文献借阅', icon: 'Reading' }
     },
     {
-        path: '/archive',
-        name: 'Archive',
-        component: () => import('@/views/archive/Archive.vue'),
-        meta: { title: '文献入库', icon: 'Folder' }
-    },
-    {
         path: '/user',
         name: 'User',
         component: () => import('@/views/User.vue'),
