@@ -17,24 +17,24 @@
 
       <!-- 表格 -->
       <el-table :data="tableData" border style="width: 100%; margin-top: 15px;">
-        <el-table-column prop="fileNo" label="档案编号" />
-        <el-table-column prop="arcTpye" label="档案类型" />
-        <el-table-column prop="contractNo" label="合同编号" />
+        <el-table-column prop="file_no" label="档案编号" />
+        <el-table-column prop="arc_type" label="档案类型" />
+        <el-table-column prop="contract_no" label="合同编号" />
         <el-table-column prop="name" label="姓名" />
-        <el-table-column prop="idCard" label="身份证号" />
-        <el-table-column prop="branchNo" label="网点编号" />
+        <el-table-column prop="id_card" label="身份证号" />
+        <el-table-column prop="branch_no" label="网点编号" />
         <el-table-column prop="manager" label="客户经理" />
         <el-table-column prop="amount" label="合同金额" />
-        <el-table-column prop="storageDate" label="入库日期" />
+        <el-table-column prop="storage_date" label="入库日期" />
 
         <!-- 借阅状态 -->
         <el-table-column label="借阅状态">
           <template #default="scope">
             <el-tag
-              :type="scope.row.borrowStatus == 1 ? 'success' : 'info'"
+              :type="Number(scope.row.borrow_state) === 1 ? 'success' : 'info'"
               effect="light"
             >
-              {{ scope.row.borrowStatus == 1 ? '已借阅' : '未借阅' }}
+              {{ Number(scope.row.borrow_state) === 1 ? '已借阅' : '未借阅' }}
             </el-tag>
           </template>
         </el-table-column>
@@ -45,7 +45,7 @@
             <el-link type="primary" @click="handleDelete(scope.row)">删除</el-link>
             <el-link
               type="primary"
-              :disabled="scope.row.borrowStatus === 1"
+              :disabled="Number(scope.row.borrow_state) === 1"
               @click="handleBorrow(scope.row)"
               style="margin-left: 10px"
             >
@@ -69,60 +69,35 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue"
-import { Plus, Reading } from "@element-plus/icons-vue"
+import { ref, onMounted } from "vue"
+import { Reading } from "@element-plus/icons-vue"
 import Pagination from "@/components/Pagination.vue"
 import BorrowDraw from "./components/BorrowDraw.vue"
+import { getArchives, addArchive } from "@/api/archives"
 
 // 表格数据
-const tableData = ref([
-  {
-    fileNo: "FLOANA11",
-    arcTpye: "个贷",
-    contractNo: "HT12345678",
-    name: "张三",
-    idCard: "350427200001013527",
-    branchNo: "903091001",
-    manager: "张国强",
-    amount: 10000,
-    storageDate: "20250801",
-    borrowStatus: 1,
-  },
-  {
-    fileNo: "FLOANA12",
-    arcTpye: "公贷",
-    contractNo: "HT87654321",
-    name: "李四",
-    idCard: "350427199901015050",
-    branchNo: "903091101",
-    manager: "张志伟",
-    amount: 100000,
-    storageDate: "20241221",
-    borrowStatus: 1,
-  },
-  {
-    fileNo: "FLOANA13",
-    arcTpye: "信用卡",
-    contractNo: "HT13572468",
-    name: "王五",
-    idCard: "3504271980010102010",
-    branchNo: "903091102",
-    manager: "肖磊",
-    amount: 1000000,
-    storageDate: "20250731",
-    borrowStatus: 0,
-  },
-])
+const tableData = ref<any[]>([])
 
 // 分页参数
 const pageObj = ref({
   page: 1,
   page_size: 10,
 })
-const total = ref(3)
+const total = ref(0)
 
-const fetchData = () => {
-  console.log("分页参数：", pageObj.value)
+const fetchData = async () => {
+  try {
+    const response: any = await getArchives()
+    // 处理 borrow_state 字段，确保是数字
+    tableData.value = response.data.map((item: any) => ({
+      ...item,
+      borrow_state: Number(item.borrow_state),
+    }))
+    total.value = response.data.length // TODO: 后端分页后改成 response.total
+    console.log("档案数据：", tableData.value)
+  } catch (error) {
+    console.error("获取数据失败：", error)
+  }
 }
 
 const handleDelete = (row: any) => {
@@ -130,7 +105,7 @@ const handleDelete = (row: any) => {
 }
 
 const handleBorrow = (row: any) => {
-  if (row.borrowStatus === 1) return
+  if (row.borrow_state === 1) return
   console.log("借阅", row)
 }
 
@@ -142,10 +117,20 @@ const openDrawer = () => {
 }
 
 // 接收新增数据
-const handleAdd = (data: any) => {
-  console.log("新增的数据：", data)
-  // TODO: 调用接口 / 插入表格数据
+const handleAdd = async (data: any) => {
+  try {
+    await addArchive(data)
+    console.log("新增档案成功：", data)
+    fetchData()
+  } catch (error) {
+    console.error("新增档案失败：", error)
+  }
 }
+
+onMounted(() => {
+  // 初始化数据
+  fetchData()
+})
 </script>
 
 <style scoped>

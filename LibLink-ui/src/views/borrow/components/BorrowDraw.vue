@@ -8,28 +8,28 @@
   >
     <el-form :model="form" label-width="80px">
       <el-form-item label="柜号">
-        <el-input v-model="form.cabinetNo" />
+        <el-input v-model="form.cabinet_no" />
       </el-form-item>
       <el-form-item label="盒号">
-        <el-input v-model="form.boxNo" />
+        <el-input v-model="form.box_no" />
       </el-form-item>
       <el-form-item label="编号">
-        <el-input v-model="form.innerNo" />
+        <el-input v-model="form.inner_no" />
       </el-form-item>
       <el-form-item label="档案类型">
-        <el-input v-model="form.arcType" />
+        <el-input v-model="form.arc_type" />
       </el-form-item>
       <el-form-item label="合同编号">
-        <el-input v-model="form.contractNo" />
+        <el-input v-model="form.contract_no" />
       </el-form-item>
       <el-form-item label="姓名">
         <el-input v-model="form.name" />
       </el-form-item>
       <el-form-item label="身份证号">
-        <el-input v-model="form.idCard" />
+        <el-input v-model="form.id_card" />
       </el-form-item>
       <el-form-item label="网点编号">
-        <el-input v-model="form.branchNo" />
+        <el-input v-model="form.branch_no" />
       </el-form-item>
       <el-form-item label="客户经理">
         <el-input v-model="form.manager" />
@@ -38,11 +38,11 @@
         <el-input-number v-model="form.amount" :min="0" style="width: 100%" />
       </el-form-item>
       <el-form-item label="权限类型">
-        <el-input v-model="form.groupPermission" />
+        <el-input v-model="form.group_permission" />
       </el-form-item>
       <el-form-item label="入库日期">
         <el-date-picker
-          v-model="form.storageDate"
+          v-model="form.storage_date"
           type="date"
           placeholder="选择日期"
           style="width: 100%"
@@ -65,23 +65,31 @@ import { ref, reactive, defineExpose } from "vue"
 
 const visible = ref(false)
 
-// 表单数据
-const form = reactive({
-  fileNo: "",
-  cabinetNo: "",
-  boxNo: "",
-  innerNo: "",
-  arcType: "",
-  contractNo: "",
+// 初始表单
+const initialForm = {
+  file_no: "",
+  cabinet_no: "",
+  box_no: "",
+  inner_no: "",
+  arc_type: "",
+  contract_no: "",
   name: "",
-  idCard: "",
-  branchNo: "",
+  id_card: "",
+  branch_no: "",
   manager: "",
-  amount: 0,
-  groupPermission: "",
-  storageDate: "",
-  borrowStatus: 0, // 默认未借阅
-})
+  amount: "0",
+  group_permission: "",
+  storage_date: "",
+  borrow_state: "0",
+}
+
+// 表单数据
+const form = reactive({ ...initialForm })
+
+// 重置方法
+const resetForm = () => {
+  Object.assign(form, initialForm)
+}
 
 // 向父组件暴露方法
 const open = () => {
@@ -90,11 +98,15 @@ const open = () => {
 
 const handleClose = () => {
   visible.value = false
+  resetForm()
 }
 
 // 提交表单
 const emit = defineEmits(["submit"])
 const handleSubmit = () => {
+  // 拼接 file_no
+  form.file_no = `${form.cabinet_no}${form.box_no}-${form.inner_no}`
+  form.amount = String(form.amount) // 转为字符串
   emit("submit", { ...form })
   handleClose()
 }

@@ -9,10 +9,14 @@ import (
 
 type Archive struct {
 	gorm.Model
-	FileNo          string `gorm:"column:file_no;comment:'文献编号'" json:"file_no"`
-	Title           string `gorm:"column:title;comment:'文献标题'" json:"title"`
-	ContractNo      string `gorm:"column:contract_no;comment:'合同号'" json:"contract_no"`
-	InstNo          string `gorm:"column:inst_no;comment:'机构号'" json:"inst_no"`
+	FileNo          string `gorm:"column:file_no;comment:'档案编号'" json:"file_no"`
+	ContractNo      string `gorm:"column:contract_no;comment:'合同编号'" json:"contract_no"`
+	Title           string `gorm:"column:title;comment:'档案标题'" json:"title"`
+	Name            string `gorm:"column:name;comment:'姓名'" json:"name"`
+	IDCard          string `gorm:"column:id_card;comment:'身份证号'" json:"id_card"`
+	InstNo          string `gorm:"column:inst_no;comment:'网点编号'" json:"inst_no"`
+	Manager         string `gorm:"column:manager;comment:'管户客户经理'" json:"manager"`
+	Amount          string `gorm:"column:amount;comment:'合同金额'" json:"amount"`
 	ArcType         string `gorm:"column:arc_type;comment:'文献类型'" json:"arc_type"`
 	BorrowState     string `gorm:"column:borrow_state;comment:'借阅状态'" json:"borrow_state"`
 	FolderID        uint   `gorm:"column:folder_id;comment:'文件夹ID'" json:"folder_id"`

@@ -174,31 +174,13 @@ func AddArchive(c *gin.Context) {
 		return
 	}
 
-	// 绑定请求参数
-	var req struct {
-		FileNo          string `json:"file_no" binding:"required"`
-		Title           string `json:"title" binding:"required"`
-		ContractNo      string `json:"contract_no"`
-		InstNo          string `json:"inst_no"`
-		ArcType         string `json:"arc_type"`
-		GroupPermission string `json:"group_permission" binding:"required"`
-	}
-	if err := c.ShouldBindJSON(&req); err != nil {
+	newArchive := &archive.Archive{}
+	if err := c.ShouldBindJSON(&newArchive); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "请求参数错误", "error": err.Error()})
 		return
 	}
-
-	newArchive := &archive.Archive{
-		FileNo:          req.FileNo,
-		Title:           req.Title,
-		ContractNo:      req.ContractNo,
-		InstNo:          req.InstNo,
-		ArcType:         req.ArcType,
-		BorrowState:     "0", // 默认未借阅
-		CreatorID:       currentUser.Email,
-		GroupPermission: currentUser.PermissionGroup, // 使用用户的权限组
-		FolderID:        0,
-	}
+	newArchive.GroupPermission = currentUser.PermissionGroup
+	newArchive.CreatorID = currentUser.Email
 
 	if err := global.DB.Create(newArchive).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "创建档案失败", "error": err.Error()})
