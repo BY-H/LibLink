@@ -18,6 +18,7 @@
       <!-- 表格 -->
       <el-table :data="tableData" border style="width: 100%; margin-top: 15px;">
         <el-table-column prop="fileNo" label="档案编号" />
+        <el-table-column prop="arcTpye" label="档案类型" />
         <el-table-column prop="contractNo" label="合同编号" />
         <el-table-column prop="name" label="姓名" />
         <el-table-column prop="idCard" label="身份证号" />
@@ -30,10 +31,10 @@
         <el-table-column label="借阅状态">
           <template #default="scope">
             <el-tag
-              :type="scope.row.borrowStatus === 1 ? 'success' : 'info'"
+              :type="scope.row.borrowStatus == 1 ? 'success' : 'info'"
               effect="light"
             >
-              {{ scope.row.borrowStatus === 1 ? '已借阅' : '未借阅' }}
+              {{ scope.row.borrowStatus == 1 ? '已借阅' : '未借阅' }}
             </el-tag>
           </template>
         </el-table-column>
@@ -77,6 +78,7 @@ import BorrowDraw from "./components/BorrowDraw.vue"
 const tableData = ref([
   {
     fileNo: "FLOANA11",
+    arcTpye: "个贷",
     contractNo: "HT12345678",
     name: "张三",
     idCard: "350427200001013527",
@@ -88,6 +90,7 @@ const tableData = ref([
   },
   {
     fileNo: "FLOANA12",
+    arcTpye: "公贷",
     contractNo: "HT87654321",
     name: "李四",
     idCard: "350427199901015050",
@@ -99,6 +102,7 @@ const tableData = ref([
   },
   {
     fileNo: "FLOANA13",
+    arcTpye: "信用卡",
     contractNo: "HT13572468",
     name: "王五",
     idCard: "3504271980010102010",

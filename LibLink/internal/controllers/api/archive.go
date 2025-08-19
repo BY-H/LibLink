@@ -13,7 +13,7 @@ import (
 )
 
 // GetArchive 获取指定档案
-func GetArchive(c *gin.Context) {
+func GetArchiveByID(c *gin.Context) {
 	// 获取档案ID
 	idStr := c.Query("id")
 	if idStr == "" {
@@ -62,15 +62,10 @@ func GetArchive(c *gin.Context) {
 	})
 }
 
-// CreateArchive 创建档案
+// CreateArchive 创建档案(文件夹层级)
 func CreateArchive(c *gin.Context) {
 	// 获取当前用户信息
-	emailVal, ok := c.Get("email")
-	if !ok {
-		c.JSON(http.StatusUnauthorized, gin.H{"message": "未授权"})
-		return
-	}
-	email := emailVal.(string)
+	email := middleware.GetEmail(c)
 
 	var currentUser user.User
 	if err := global.DB.Where("email = ?", email).First(&currentUser).Error; err != nil {
@@ -136,6 +131,7 @@ func CreateArchive(c *gin.Context) {
 	})
 }
 
+// GetArchives 获取当前用户的档案列表
 func GetArchives(c *gin.Context) {
 	// 获取当前用户信息
 	email := middleware.GetEmail(c)
@@ -163,6 +159,54 @@ func GetArchives(c *gin.Context) {
 	})
 }
 
+// AddArchive 新增档案(不管文件夹层级)
 func AddArchive(c *gin.Context) {
+	// 获取当前用户信息
+	email := middleware.GetEmail(c)
 
+	var currentUser user.User
+	if err := global.DB.Where("email = ?", email).First(&currentUser).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(http.StatusUnauthorized, gin.H{"message": "用户不存在"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "数据库错误"})
+		return
+	}
+
+	// 绑定请求参数
+	var req struct {
+		FileNo          string `json:"file_no" binding:"required"`
+		Title           string `json:"title" binding:"required"`
+		ContractNo      string `json:"contract_no"`
+		InstNo          string `json:"inst_no"`
+		ArcType         string `json:"arc_type"`
+		GroupPermission string `json:"group_permission" binding:"required"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "请求参数错误", "error": err.Error()})
+		return
+	}
+
+	newArchive := &archive.Archive{
+		FileNo:          req.FileNo,
+		Title:           req.Title,
+		ContractNo:      req.ContractNo,
+		InstNo:          req.InstNo,
+		ArcType:         req.ArcType,
+		BorrowState:     "0", // 默认未借阅
+		CreatorID:       currentUser.Email,
+		GroupPermission: currentUser.PermissionGroup, // 使用用户的权限组
+		FolderID:        0,
+	}
+
+	if err := global.DB.Create(newArchive).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "创建档案失败", "error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "档案创建成功",
+		"data":    newArchive,
+	})
 }

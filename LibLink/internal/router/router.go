@@ -33,6 +33,11 @@ func Router() *gin.Engine {
 				notification.POST("/add", api.AddNotification)
 			}
 		}
+		archives := authRoutes.Group("/archives")
+		{
+			archives.GET("/list", api.GetArchives)
+			archives.POST("/add", api.AddArchive)
+		}
 	}
 
 	return router

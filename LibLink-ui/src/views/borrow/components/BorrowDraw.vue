@@ -10,13 +10,14 @@
       <el-form-item label="柜号">
         <el-input v-model="form.cabinetNo" />
       </el-form-item>
-
       <el-form-item label="盒号">
         <el-input v-model="form.boxNo" />
       </el-form-item>
-
       <el-form-item label="编号">
         <el-input v-model="form.innerNo" />
+      </el-form-item>
+      <el-form-item label="档案类型">
+        <el-input v-model="form.arcType" />
       </el-form-item>
       <el-form-item label="合同编号">
         <el-input v-model="form.contractNo" />
@@ -35,6 +36,9 @@
       </el-form-item>
       <el-form-item label="合同金额">
         <el-input-number v-model="form.amount" :min="0" style="width: 100%" />
+      </el-form-item>
+      <el-form-item label="权限类型">
+        <el-input v-model="form.groupPermission" />
       </el-form-item>
       <el-form-item label="入库日期">
         <el-date-picker
@@ -67,12 +71,14 @@ const form = reactive({
   cabinetNo: "",
   boxNo: "",
   innerNo: "",
+  arcType: "",
   contractNo: "",
   name: "",
   idCard: "",
   branchNo: "",
   manager: "",
   amount: 0,
+  groupPermission: "",
   storageDate: "",
   borrowStatus: 0, // 默认未借阅
 })
