@@ -146,12 +146,19 @@ func GetArchives(c *gin.Context) {
 		return
 	}
 
+	// 按合同号搜索
+	contractNo := c.Query("contract_no")
+	db := global.DB.Where("group_permission = ?", currentUser.PermissionGroup)
+	if contractNo != "" {
+		db = db.Where("contract_no LIKE ?", "%" + contractNo + "%")
+	}
+
 	// 查询档案列表
 	var archives []archive.Archive
-	if err := global.DB.Where("group_permission = ?", currentUser.PermissionGroup).Find(&archives).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"message": "数据库错误"})
-		return
-	}
+	if err := db.Find(&archives).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"message": "数据库错误"})
+        return
+    }
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "获取档案列表成功",
