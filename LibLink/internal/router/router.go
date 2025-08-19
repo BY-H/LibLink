@@ -37,6 +37,8 @@ func Router() *gin.Engine {
 		{
 			archives.GET("/list", api.GetArchives)
 			archives.POST("/add", api.AddArchive)
+			archives.PATCH("/borrow", api.BorrowArchive)
+			archives.PATCH("/return", api.ReturnArchive)
 		}
 	}
 

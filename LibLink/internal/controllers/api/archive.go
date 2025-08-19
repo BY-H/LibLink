@@ -192,3 +192,69 @@ func AddArchive(c *gin.Context) {
 		"data":    newArchive,
 	})
 }
+
+func BorrowArchive(c *gin.Context) {
+	// TODO: 鉴权，该用户是否有对应档案操作权限
+	contractNo := c.Query("contract_no")
+	if contractNo == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "缺少合同编号"})
+		return
+	}
+
+	var archive archive.Archive
+	if err := global.DB.Where("contract_no = ?", contractNo).First(&archive).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(http.StatusNotFound, gin.H{"message": "档案不存在"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "数据库错误"})
+		return
+	}
+
+	// 检查档案是否已被借出
+	if archive.BorrowState == "1" {
+		c.JSON(http.StatusConflict, gin.H{"message": "档案已被借出"})
+		return
+	}
+
+	archive.BorrowState = "1" // 设置为已借出状态
+	if err := global.DB.Save(&archive).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "更新档案状态失败", "error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "借阅成功"})
+}
+
+func ReturnArchive(c *gin.Context) {
+	// TODO: 鉴权，该用户是否有对应档案操作权限
+	contractNo := c.Query("contract_no")
+	if contractNo == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "缺少合同编号"})
+		return
+	}
+
+	var archive archive.Archive
+	if err := global.DB.Where("contract_no = ?", contractNo).First(&archive).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(http.StatusNotFound, gin.H{"message": "档案不存在"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "数据库错误"})
+		return
+	}
+
+	// 检查档案是否已被借出
+	if archive.BorrowState == "0" {
+		c.JSON(http.StatusConflict, gin.H{"message": "档案未被借出"})
+		return
+	}
+
+	archive.BorrowState = "0" // 设置为已借出状态
+	if err := global.DB.Save(&archive).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "更新档案状态失败", "error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "归还成功"})
+}
