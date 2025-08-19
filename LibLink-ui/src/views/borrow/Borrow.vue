@@ -11,7 +11,7 @@
 
       <div class="table-actions">
          <div class="result-info" v-if="searchContractNo">
-          搜索"{{ searchContractNo }}"的结果，共 {{ filteredData.length }} 条记录
+          搜索"{{ searchContractNo }}"的结果，共 {{ tableData.length }} 条记录
         </div>
         <el-button type="primary" @click="openDrawer">
           新增
@@ -92,8 +92,10 @@
       <!-- 分页 -->
       <Pagination
         v-model:pageObj="pageObj"
+        v-model:page-size="pageObj.page_size"
         :total="total"
         :onUpdate="fetchData"
+        @update:page-size="handlePageSizeChange"
       />
     </el-card>
 
@@ -111,17 +113,6 @@ import { getArchives, addArchive, borrowArchive, returnArchive } from "@/api/arc
 
 // 搜索关键词
 const searchContractNo = ref("")
-
-// 搜索处理
-const handleSearch = () => {
-  fetchData()
-}
-
-// 重置搜索
-const resetSearch = () => {
-  searchContractNo.value = ""
-  fetchData()
-}
 
 // 搜索表单
 const searchForm = reactive({
@@ -143,21 +134,6 @@ const pageObj = ref({
 })
 const total = ref(0)
 
-const fetchData = async () => {
-  try {
-    const response: any = await getArchives()
-    // 处理 borrow_state 字段，确保是数字
-    tableData.value = response.data.map((item: any) => ({
-      ...item,
-      borrow_state: Number(item.borrow_state),
-    }))
-    total.value = response.data.length // TODO: 后端分页后改成 response.total
-    console.log("档案数据：", tableData.value)
-  } catch (error) {
-    console.error("获取数据失败：", error)
-  }
-}
-
 // 计算属性：过滤后的数据
 const filteredData = computed(() => {
   if (!searchContractNo.value) {
@@ -167,6 +143,58 @@ const filteredData = computed(() => {
   return tableData.value.filter(item => 
     item.contract_no && item.contract_no.includes(searchContractNo.value))
 })
+
+const fetchData = async () => {
+  try {
+    // 构建查询参数
+    const params: any = {
+      page: pageObj.value.page,
+      page_size: pageObj.value.page_size
+    }
+    
+    // 添加搜索参数
+    if (searchContractNo.value.trim()) {
+      params.contract_no = searchContractNo.value.trim()
+    }
+    
+    console.log("请求参数:", params)
+    
+    const response: any = await getArchives(params)
+    
+    if (response && response.data) {
+      tableData.value = response.data.map((item: any) => ({
+        ...item,
+        borrow_state: Number(item.borrow_state) || 0,
+      }))
+      total.value = response.total || response.data.length
+      console.log("获取数据成功:", tableData.value)
+    } else {
+      console.error("响应数据格式错误:", response)
+    }
+  } catch (error: any) {
+    console.error("获取数据失败：", error)
+  }
+}
+
+// 搜索处理
+const handleSearch = () => {
+  pageObj.value.page = 1 // 重置到第一页
+  fetchData()
+}
+
+// 重置搜索
+const resetSearch = () => {
+  searchContractNo.value = ""
+  pageObj.value.page = 1
+  fetchData()
+}
+
+// 每页条数变化
+const handlePageSizeChange = (newSize: number) => {
+  pageObj.value.page_size = newSize
+  pageObj.value.page = 1
+  fetchData()
+}
 
 const handleDelete = (row: any) => {
   console.log("删除", row)

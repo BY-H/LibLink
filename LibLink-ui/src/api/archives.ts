@@ -1,9 +1,10 @@
 import request from '@/utils/request'
 
-export function getArchives() {
+export function getArchives(params: object) {
     return request({
         url: '/api/archives/list',
-        method: 'get'
+        method: 'get',
+        params
     })
 }
 
