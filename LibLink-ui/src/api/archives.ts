@@ -14,3 +14,19 @@ export function addArchive(data: object) {
         data
     })
 }
+
+export function borrowArchive(params: object) {
+    return request({
+        url: '/api/archives/borrow',
+        method: 'patch',
+        params
+    })
+}
+
+export function returnArchive(params: object) {
+    return request({
+        url: '/api/archives/return',
+        method: 'patch',
+        params
+    })
+}

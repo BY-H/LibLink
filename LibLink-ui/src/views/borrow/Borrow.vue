@@ -31,28 +31,36 @@
         <el-table-column label="借阅状态">
           <template #default="scope">
             <el-tag
-              :type="Number(scope.row.borrow_state) === 1 ? 'success' : 'info'"
+              :type="Number(scope.row.borrow_state) == 1 ? 'success' : 'info'"
               effect="light"
             >
-              {{ Number(scope.row.borrow_state) === 1 ? '已借阅' : '未借阅' }}
+              {{ Number(scope.row.borrow_state) == 1 ? '已借阅' : '未借阅' }}
             </el-tag>
           </template>
         </el-table-column>
 
         <!-- 操作列 -->
-        <el-table-column label="操作" width="150">
-          <template #default="scope">
-            <el-link type="primary" @click="handleDelete(scope.row)">删除</el-link>
-            <el-link
-              type="primary"
-              :disabled="Number(scope.row.borrow_state) === 1"
-              @click="handleBorrow(scope.row)"
-              style="margin-left: 10px"
-            >
-              借阅
-            </el-link>
-          </template>
-        </el-table-column>
+        <el-table-column label="操作" width="180">
+        <template #default="scope">
+          <!-- <el-link type="primary" @click="handleDelete(scope.row)">删除</el-link> -->
+          <el-link
+            v-if="scope.row.borrow_state == 0"
+            type="primary"
+            @click="handleBorrow(scope.row)"
+            style="margin-left: 10px"
+          >
+            借阅
+          </el-link>
+          <el-link
+            v-else
+            type="warning"
+            @click="handleReturn(scope.row)"
+            style="margin-left: 10px"
+          >
+            归还
+          </el-link>
+        </template>
+      </el-table-column>
       </el-table>
 
       <!-- 分页 -->
@@ -73,7 +81,7 @@ import { ref, onMounted } from "vue"
 import { Reading } from "@element-plus/icons-vue"
 import Pagination from "@/components/Pagination.vue"
 import BorrowDraw from "./components/BorrowDraw.vue"
-import { getArchives, addArchive } from "@/api/archives"
+import { getArchives, addArchive, borrowArchive, returnArchive } from "@/api/archives"
 
 // 表格数据
 const tableData = ref<any[]>([])
@@ -106,7 +114,26 @@ const handleDelete = (row: any) => {
 
 const handleBorrow = (row: any) => {
   if (row.borrow_state === 1) return
-  console.log("借阅", row)
+  try {
+    borrowArchive({
+      contract_no: row.contract_no,
+    })
+    row.borrow_state = "1" // 更新状态为已借阅
+  } catch (error) {
+    console.error("借阅失败：", error)
+  }
+}
+
+const handleReturn = (row: any) => {
+  if (row.borrow_state === 0) return
+  try {
+    returnArchive({
+      contract_no: row.contract_no,
+    })
+    row.borrow_state = "0" // 更新状态为未借阅
+  } catch (error) {
+    console.error("归还失败：", error)
+  }
 }
 
 const drawerRef = ref()
