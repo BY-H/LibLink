@@ -10,9 +10,35 @@
       </template>
 
       <div class="table-actions">
+         <div class="result-info" v-if="searchContractNo">
+          搜索"{{ searchContractNo }}"的结果，共 {{ filteredData.length }} 条记录
+        </div>
         <el-button type="primary" @click="openDrawer">
           新增
         </el-button>
+      </div>
+
+      <!-- 搜索区域 -->
+      <div class="search-container">
+        <div class="search-form">
+          <el-input 
+            v-model="searchContractNo" 
+            placeholder="请输入合同编号进行搜索" 
+            clearable 
+            style="width: 300px;"
+            @keyup.enter="handleSearch"
+          >
+            <template #prefix>
+              <el-icon><Search /></el-icon>
+            </template>
+          </el-input>
+          <el-button type="primary" @click="handleSearch" :icon="Search">
+            搜索
+          </el-button>
+          <el-button @click="resetSearch" :icon="Refresh">
+            重置
+          </el-button>
+        </div>
       </div>
 
       <!-- 表格 -->
@@ -77,11 +103,35 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue"
+import { ref, onMounted, reactive, computed } from "vue"
 import { Reading } from "@element-plus/icons-vue"
 import Pagination from "@/components/Pagination.vue"
 import BorrowDraw from "./components/BorrowDraw.vue"
 import { getArchives, addArchive, borrowArchive, returnArchive } from "@/api/archives"
+
+// 搜索关键词
+const searchContractNo = ref("")
+
+// 搜索处理
+const handleSearch = () => {
+  fetchData()
+}
+
+// 重置搜索
+const resetSearch = () => {
+  searchContractNo.value = ""
+  fetchData()
+}
+
+// 搜索表单
+const searchForm = reactive({
+  file_no: "",
+  contract_no: "",
+  arc_type: "",
+  inst_no: "",
+  name: "",
+  borrow_state: ""
+})
 
 // 表格数据
 const tableData = ref<any[]>([])
@@ -107,6 +157,16 @@ const fetchData = async () => {
     console.error("获取数据失败：", error)
   }
 }
+
+// 计算属性：过滤后的数据
+const filteredData = computed(() => {
+  if (!searchContractNo.value) {
+    return tableData.value
+  }
+  
+  return tableData.value.filter(item => 
+    item.contract_no && item.contract_no.includes(searchContractNo.value))
+})
 
 const handleDelete = (row: any) => {
   console.log("删除", row)
