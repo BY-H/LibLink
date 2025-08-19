@@ -22,7 +22,7 @@
         <el-table-column prop="contract_no" label="合同编号" />
         <el-table-column prop="name" label="姓名" />
         <el-table-column prop="id_card" label="身份证号" />
-        <el-table-column prop="branch_no" label="网点编号" />
+        <el-table-column prop="inst_no" label="网点编号" />
         <el-table-column prop="manager" label="客户经理" />
         <el-table-column prop="amount" label="合同金额" />
         <el-table-column prop="storage_date" label="入库日期" />

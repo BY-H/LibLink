@@ -29,7 +29,7 @@
         <el-input v-model="form.id_card" />
       </el-form-item>
       <el-form-item label="网点编号">
-        <el-input v-model="form.branch_no" />
+        <el-input v-model="form.inst_no" />
       </el-form-item>
       <el-form-item label="客户经理">
         <el-input v-model="form.manager" />
@@ -75,7 +75,7 @@ const initialForm = {
   contract_no: "",
   name: "",
   id_card: "",
-  branch_no: "",
+  inst_no: "",
   manager: "",
   amount: "0",
   group_permission: "",

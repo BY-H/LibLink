@@ -21,6 +21,7 @@ type Archive struct {
 	BorrowState     string `gorm:"column:borrow_state;comment:'借阅状态'" json:"borrow_state"`
 	FolderID        uint   `gorm:"column:folder_id;comment:'文件夹ID'" json:"folder_id"`
 	CreatorID       string `gorm:"column:creator_id;comment:'创建者ID'" json:"creator_id"`
+	StorageDate     string `gorm:"column:storage_date;comment:'入库日期'" json:"storage_date"`
 	GroupPermission string `gorm:"column:group_permission;comment:'用户组权限,自动继承父文件夹权限,需要有其中所有权限才能够访问该档案'" json:"group_permission"`
 }
 
