@@ -37,9 +37,9 @@
       <el-form-item label="合同金额">
         <el-input-number v-model="form.amount" :min="0" style="width: 100%" />
       </el-form-item>
-      <el-form-item label="权限类型">
+      <!-- <el-form-item label="权限类型">
         <el-input v-model="form.group_permission" />
-      </el-form-item>
+      </el-form-item> -->
       <el-form-item label="入库日期">
         <el-date-picker
           v-model="form.storage_date"
