@@ -23,13 +23,13 @@ const routes: RouteRecordRaw[] = [
         name: 'Borrow',
         component: () => import('@/views/borrow/Borrow.vue'),
         meta: { title: '文献借阅', icon: 'Reading' }
-    },
-    {
-        path: '/user',
-        name: 'User',
-        component: () => import('@/views/User.vue'),
-        meta: { title: '用户管理', icon: 'User' }
     }
+    // {
+    //     path: '/user',
+    //     name: 'User',
+    //     component: () => import('@/views/User.vue'),
+    //     meta: { title: '用户管理', icon: 'User' }
+    // }
 ]
 
 const router = createRouter({
