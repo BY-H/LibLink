@@ -106,7 +106,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, reactive, computed } from "vue"
-import { Reading } from "@element-plus/icons-vue"
+import { Reading, Search, Refresh } from "@element-plus/icons-vue"
 import Pagination from "@/components/Pagination.vue"
 import BorrowDraw from "./components/BorrowDraw.vue"
 import { getArchives, addArchive, borrowArchive, returnArchive } from "@/api/archives"
