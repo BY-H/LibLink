@@ -187,6 +187,9 @@ func AddArchive(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "请求参数错误", "error": err.Error()})
 		return
 	}
+
+	// 后端生成字段
+	newArchive.FileNo = archive.GetArcTypeFileNo(global.DB, newArchive.ArcType)
 	newArchive.GroupPermission = currentUser.PermissionGroup
 	newArchive.CreatorID = currentUser.Email
 
@@ -249,25 +252,27 @@ func BatchImportArchives(c *gin.Context) {
 	var archives []archive.Archive
 	for i, row := range rows {
 		if i == 0 {
-			// 假设第一行是表头
+			// 第一行是表头
 			continue
 		}
 
-		if len(row) < 2 {
-			// 比如至少需要两列：文献编号、标题
+		if len(row) < 6 {
 			continue
 		}
 
+		// 档案类型	合同编号	姓名	身份证号	网点编号	客户经理	合同金额
 		a := archive.Archive{
-			FileNo:          row[0],
-			Title:           row[1],
-			ContractNo:      "",
+			FileNo:          archive.GetArcTypeFileNo(global.DB, row[0]),
+			ArcType:         row[0],
+			ContractNo:      row[1],
+			IDCard:          row[2],
+			InstNo:          row[3],
+			Manager:         row[4],
+			Amount:          row[5],
 			GroupPermission: currentUser.PermissionGroup,
 			CreatorID:       currentUser.Email,
 		}
-		if len(row) > 2 {
-			a.ContractNo = row[2]
-		}
+
 		archives = append(archives, a)
 	}
 

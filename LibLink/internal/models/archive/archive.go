@@ -2,6 +2,7 @@ package archive
 
 import (
 	"errors"
+	"strconv"
 	"strings"
 
 	"gorm.io/gorm"
@@ -171,4 +172,12 @@ func CreateArchive(DB *gorm.DB, fileNo, title, contractNo, instNo, arcType, borr
 	}
 
 	return newArchive, nil
+}
+
+func GetArcTypeFileNo(DB *gorm.DB, arcType string) string {
+	var count int64
+	if err := DB.Model(&Archive{}).Where("arc_type = ?", arcType).Count(&count).Error; err != nil {
+		return ""
+	}
+	return strconv.Itoa(int(count + 1))
 }
