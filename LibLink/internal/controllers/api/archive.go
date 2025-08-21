@@ -9,6 +9,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/xuri/excelize/v2"
 	"gorm.io/gorm"
 )
 
@@ -150,15 +151,15 @@ func GetArchives(c *gin.Context) {
 	contractNo := c.Query("contract_no")
 	db := global.DB.Where("group_permission = ?", currentUser.PermissionGroup)
 	if contractNo != "" {
-		db = db.Where("contract_no LIKE ?", "%" + contractNo + "%")
+		db = db.Where("contract_no LIKE ?", "%"+contractNo+"%")
 	}
 
 	// 查询档案列表
 	var archives []archive.Archive
 	if err := db.Find(&archives).Error; err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"message": "数据库错误"})
-        return
-    }
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "数据库错误"})
+		return
+	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "获取档案列表成功",
@@ -197,6 +198,93 @@ func AddArchive(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": "档案创建成功",
 		"data":    newArchive,
+	})
+}
+
+// BatchImportArchives 批量导入
+// 目前只支持 xlsx 格式，后续有需要则扩展其他格式进行导入
+func BatchImportArchives(c *gin.Context) {
+	// 获取当前用户
+	email := middleware.GetEmail(c)
+
+	var currentUser user.User
+	if err := global.DB.Where("email = ?", email).First(&currentUser).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(http.StatusUnauthorized, gin.H{"message": "用户不存在"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "数据库错误"})
+		return
+	}
+
+	// 解析上传的 Excel 文件
+	file, err := c.FormFile("file")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "文件上传失败", "error": err.Error()})
+		return
+	}
+
+	f, err := file.Open()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "无法打开文件", "error": err.Error()})
+		return
+	}
+	defer f.Close()
+
+	// 使用 excelize 解析
+	xlsx, err := excelize.OpenReader(f)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "读取Excel失败", "error": err.Error()})
+		return
+	}
+
+	// 默认读取第一个sheet
+	sheet := xlsx.GetSheetName(0)
+	rows, err := xlsx.GetRows(sheet)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "读取行失败", "error": err.Error()})
+		return
+	}
+
+	var archives []archive.Archive
+	for i, row := range rows {
+		if i == 0 {
+			// 假设第一行是表头
+			continue
+		}
+
+		if len(row) < 2 {
+			// 比如至少需要两列：文献编号、标题
+			continue
+		}
+
+		a := archive.Archive{
+			FileNo:          row[0],
+			Title:           row[1],
+			ContractNo:      "",
+			GroupPermission: currentUser.PermissionGroup,
+			CreatorID:       currentUser.Email,
+		}
+		if len(row) > 2 {
+			a.ContractNo = row[2]
+		}
+		archives = append(archives, a)
+	}
+
+	if len(archives) == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Excel中没有有效数据"})
+		return
+	}
+
+	// 批量插入
+	if err := global.DB.Create(&archives).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "批量导入失败", "error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "批量导入成功",
+		"count":   len(archives),
 	})
 }
 

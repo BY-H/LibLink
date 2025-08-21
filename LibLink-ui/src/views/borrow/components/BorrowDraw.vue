@@ -7,15 +7,6 @@
     :before-close="handleClose"
   >
     <el-form :model="form" label-width="80px">
-      <el-form-item label="柜号">
-        <el-input v-model="form.cabinet_no" />
-      </el-form-item>
-      <el-form-item label="盒号">
-        <el-input v-model="form.box_no" />
-      </el-form-item>
-      <el-form-item label="编号">
-        <el-input v-model="form.inner_no" />
-      </el-form-item>
       <el-form-item label="档案类型">
         <el-input v-model="form.arc_type" />
       </el-form-item>
@@ -104,8 +95,6 @@ const handleClose = () => {
 // 提交表单
 const emit = defineEmits(["submit"])
 const handleSubmit = () => {
-  // 拼接 file_no
-  form.file_no = `${form.cabinet_no}${form.box_no}-${form.inner_no}`
   form.amount = String(form.amount) // 转为字符串
   emit("submit", { ...form })
   handleClose()
