@@ -52,7 +52,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, defineExpose } from "vue"
+import { ref, reactive } from "vue"
 
 const visible = ref(false)
 
