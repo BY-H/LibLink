@@ -1,6 +1,7 @@
 package api
 
 import (
+	"liblink/internal/controllers/message"
 	"liblink/internal/global"
 	"liblink/internal/middleware"
 	"liblink/internal/models/archive"
@@ -147,12 +148,39 @@ func GetArchives(c *gin.Context) {
 		return
 	}
 
-	// 按合同号搜索
-	contractNo := c.Query("contract_no")
-	db := global.DB.Where("group_permission = ?", currentUser.PermissionGroup)
-	if contractNo != "" {
-		db = db.Where("contract_no LIKE ?", "%"+contractNo+"%")
+	type archRequest struct {
+		message.RequestMsg
+		ContractNo string `json:"contract_no" form:"contract_no"`
 	}
+	var request archRequest
+	if err := c.ShouldBindQuery(&request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "请求参数错误", "error": err.Error()})
+		return
+	}
+
+	db := global.DB.Model(&archive.Archive{}).Where("group_permission = ?", currentUser.PermissionGroup)
+
+	// 筛选字段
+	if request.ContractNo != "" {
+		db = db.Where("contract_no LIKE ?", "%"+request.ContractNo+"%")
+	}
+
+	// 自动分页
+	if request.Page <= 0 {
+		request.Page = 1
+	}
+
+	if request.PageSize <= 0 {
+		request.PageSize = 10
+	}
+
+	var total int64
+	if err := db.Count(&total).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "数据库错误"})
+		return
+	}
+
+	db = db.Offset((request.Page - 1) * request.PageSize).Limit(request.PageSize)
 
 	// 查询档案列表
 	var archives []archive.Archive
@@ -162,8 +190,11 @@ func GetArchives(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message": "获取档案列表成功",
-		"data":    archives,
+		"message":   "获取档案列表成功",
+		"page":      request.Page,
+		"page_size": request.PageSize,
+		"total":     total,
+		"data":      archives,
 	})
 }
 
