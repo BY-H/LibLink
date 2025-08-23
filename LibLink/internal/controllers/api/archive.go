@@ -8,6 +8,7 @@ import (
 	"liblink/internal/models/user"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/xuri/excelize/v2"
@@ -291,17 +292,25 @@ func BatchImportArchives(c *gin.Context) {
 			continue
 		}
 
-		// 档案类型	合同编号	姓名	身份证号	网点编号	客户经理	合同金额
+		// 档案类型 	合同编号	姓名	身份证号	网点编号	客户经理	合同金额 	存档日期
 		a := archive.Archive{
 			FileNo:          archive.GetArcTypeFileNo(global.DB, row[0]),
 			ArcType:         row[0],
 			ContractNo:      row[1],
-			IDCard:          row[2],
-			InstNo:          row[3],
-			Manager:         row[4],
-			Amount:          row[5],
+			Name:            row[2],
+			IDCard:          row[3],
+			InstNo:          row[4],
+			Manager:         row[5],
+			Amount:          row[6],
 			GroupPermission: currentUser.PermissionGroup,
 			CreatorID:       currentUser.Email,
+			BorrowState:     "0", // 默认未借阅
+		}
+		// 存档日期如果为空，则默认为今日
+		if len(row) > 7 && row[7] != "" {
+			a.StorageDate = row[7]
+		} else {
+			a.StorageDate = time.Now().UTC().Format("2006-01-02T15:04:05.000Z")
 		}
 
 		archives = append(archives, a)
