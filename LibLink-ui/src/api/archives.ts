@@ -31,3 +31,17 @@ export function returnArchive(params: object) {
         params
     })
 }
+
+export function batchImportArchives(file: File) {
+    const formData = new FormData()
+    formData.append('file', file)
+
+    return request({
+        url: '/api/archives/batch_import',
+        method: 'post',
+        headers: {
+            'Content-Type': 'multipart/form-data'
+        },
+        data: formData
+    })
+}
