@@ -1,6 +1,8 @@
 .PHONY: build
 build:
 	@go build -o _output/liblink cmd/liblink/main.go
+	@mkdir -p _output/static
+	@cp -r static/* _output/static/
 
 .PHONY: format
 format:

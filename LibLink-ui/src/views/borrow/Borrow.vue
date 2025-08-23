@@ -21,7 +21,7 @@
                 </div>
 
                 <div class="right-actions">
-                    <el-button type="primary" @click="fetchData"> 批量新增 </el-button>
+                    <el-button type="primary" @click="batchImport"> 批量新增 </el-button>
                     <el-button type="primary" @click="openDrawer"> 新增 </el-button>
                 </div>
             </div>
@@ -63,6 +63,10 @@
 
         <!-- 新增抽屉组件 -->
         <BorrowDraw ref="drawerRef" @submit="handleAdd" />
+        <BatchImport
+            v-model="batchDialogVisible"
+            @success="fetchData"
+        />
     </div>
 </template>
 
@@ -71,6 +75,7 @@ import { ref, onMounted, reactive, computed } from 'vue'
 import { Reading, Search, Refresh } from '@element-plus/icons-vue'
 import Pagination from '@/components/Pagination.vue'
 import BorrowDraw from './components/BorrowDraw.vue'
+import BatchImport from './components/BatchImport.vue'
 import { getArchives, addArchive, borrowArchive, returnArchive } from '@/api/archives'
 
 // 搜索关键词
@@ -185,10 +190,15 @@ const handleReturn = (row: any) => {
 }
 
 const drawerRef = ref()
+const batchDialogVisible = ref(false)
 
 // 点击新增按钮，打开 Drawer
 const openDrawer = () => {
     drawerRef.value.open()
+}
+
+const batchImport = () => {
+    batchDialogVisible.value = true
 }
 
 // 接收新增数据

@@ -15,6 +15,7 @@ func Router() *gin.Engine {
 	router.POST("/login", api.Login)
 	router.GET("/ping_without_login", api.Ping)
 
+	router.Static("/static", "./static")
 	authRoutes := router.Group("/api")
 	authRoutes.Use(middleware.JWTAuth())
 	{
