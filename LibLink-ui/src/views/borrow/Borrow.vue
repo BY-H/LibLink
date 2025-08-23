@@ -1,7 +1,6 @@
 <template>
     <div class="borrow-wrapper">
         <el-card class="box-card">
-            <!-- 卡片头部 -->
             <template #header>
                 <div class="card-header">
                     <el-icon><Reading /></el-icon>
