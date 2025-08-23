@@ -20,7 +20,10 @@
                     <el-button @click="resetSearch" :icon="Refresh"> 重置 </el-button>
                 </div>
 
-                <el-button type="primary" @click="openDrawer" style="margin-left: auto"> 新增 </el-button>
+                <div class="right-actions">
+                    <el-button type="primary" @click="fetchData"> 批量新增 </el-button>
+                    <el-button type="primary" @click="openDrawer"> 新增 </el-button>
+                </div>
             </div>
 
             <!-- 表格 -->
@@ -238,8 +241,13 @@ onMounted(() => {
 .table-actions {
     display: flex;
     align-items: center;
-    justify-content: space-between; /* 搜索在左，新增按钮在右 */
+    justify-content: space-between; /* 左右分开 */
     margin-bottom: 15px;
+}
+
+.right-actions {
+    display: flex;
+    gap: 10px; /* 两个按钮之间的间距 */
 }
 
 .search-form {
