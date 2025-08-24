@@ -36,9 +36,9 @@ func (a *Archive) BeforeUpdate(tx *gorm.DB) (err error) {
 	changes := make(map[string]interface{})
 
 	// 检查借阅状态，日后如果需要添加其他的变更，则加入对应的监听
-	if tx.Statement.Changed("borrow_state") {
-		var old Archive
-		tx.Model(&Archive{}).Select("borrow_state").Where("id = ?", a.ContractNo).Take(&old)
+	var old Archive
+	tx.Model(&Archive{}).Select("borrow_state").Where("contract_no = ?", a.ContractNo).Take(&old)
+	if old.BorrowState != a.BorrowState {
 		changes["borrow_state"] = map[string]interface{}{
 			"old": old.BorrowState,
 			"new": a.BorrowState,
