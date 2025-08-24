@@ -30,6 +30,7 @@ func initDB(dsn string) (*gorm.DB, error) {
 		&system.Notification{},
 		&archive.Folder{},
 		&archive.Archive{},
+		&archive.ArchiveRecord{},
 	)
 	fmt.Printf("test db init\n")
 	if err != nil {

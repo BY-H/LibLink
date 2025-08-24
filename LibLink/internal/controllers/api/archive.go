@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"liblink/internal/controllers/message"
 	"liblink/internal/global"
 	"liblink/internal/middleware"
@@ -341,8 +342,8 @@ func BorrowArchive(c *gin.Context) {
 		return
 	}
 
-	var archive archive.Archive
-	if err := global.DB.Where("contract_no = ?", contractNo).First(&archive).Error; err != nil {
+	var arch archive.Archive
+	if err := global.DB.Where("contract_no = ?", contractNo).First(&arch).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			c.JSON(http.StatusNotFound, gin.H{"message": "档案不存在"})
 			return
@@ -352,17 +353,22 @@ func BorrowArchive(c *gin.Context) {
 	}
 
 	// 检查档案是否已被借出
-	if archive.BorrowState == "1" {
+	if arch.BorrowState == "1" {
 		c.JSON(http.StatusConflict, gin.H{"message": "档案已被借出"})
 		return
 	}
 
-	archive.BorrowState = "1" // 设置为已借出状态
-	if err := global.DB.Save(&archive).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"message": "更新档案状态失败", "error": err.Error()})
+	arch.BorrowState = "1" // 设置为已借出状态
+	ctx := context.WithValue(context.Background(), archive.ArchiveOperateUserID, middleware.GetEmail(c))
+	if err := global.DB.WithContext(ctx).
+		Model(&arch).
+		Update("borrow_state", "1").Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "更新档案状态失败",
+			"error":   err.Error(),
+		})
 		return
 	}
-
 	c.JSON(http.StatusOK, gin.H{"message": "借阅成功"})
 }
 

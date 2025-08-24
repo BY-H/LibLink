@@ -4,6 +4,7 @@ import (
 	"errors"
 	"strconv"
 	"strings"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -24,6 +25,45 @@ type Archive struct {
 	CreatorID       string `gorm:"column:creator_id;comment:'创建者ID'" json:"creator_id"`
 	StorageDate     string `gorm:"column:storage_date;comment:'入库日期'" json:"storage_date"`
 	GroupPermission string `gorm:"column:group_permission;comment:'用户组权限,自动继承父文件夹权限,需要有其中所有权限才能够访问该档案'" json:"group_permission"`
+}
+
+type ArchiveOperateUserKey string
+
+const ArchiveOperateUserID ArchiveOperateUserKey = "UserID"
+
+// BeforeUpdate 更新了文献前，需要记录对应日志
+func (a *Archive) BeforeUpdate(tx *gorm.DB) (err error) {
+	changes := make(map[string]interface{})
+
+	// 检查借阅状态，日后如果需要添加其他的变更，则加入对应的监听
+	if tx.Statement.Changed("borrow_state") {
+		var old Archive
+		tx.Model(&Archive{}).Select("borrow_state").Where("id = ?", a.ContractNo).Take(&old)
+		changes["borrow_state"] = map[string]interface{}{
+			"old": old.BorrowState,
+			"new": a.BorrowState,
+		}
+	}
+
+	if len(changes) > 0 {
+		// 通过上下文传递
+		if v := tx.Statement.Context.Value(ArchiveOperateUserID); v != nil {
+			operatorID := v.(string)
+
+			log := ArchiveRecord{
+				ContractNo:  a.ContractNo,
+				CreatorID:   operatorID,
+				OperateType: a.BorrowState, // 直接使用新的借阅状态作为操作类型
+				OperateDate: time.Now().UTC().Format("2006-01-02T15:04:05.000Z"),
+			}
+
+			if err := tx.Save(&log).Error; err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
 }
 
 type Folder struct {
@@ -180,4 +220,12 @@ func GetArcTypeFileNo(DB *gorm.DB, arcType string) string {
 		return ""
 	}
 	return strconv.Itoa(int(count + 1))
+}
+
+type ArchiveRecord struct {
+	gorm.Model
+	ContractNo  string `gorm:"column:contract_no;comment:'合同编号'" json:"contract_no"`
+	CreatorID   string `gorm:"column:creator_id;comment:'借阅人ID'" json:"creator_id"`
+	OperateType string `gorm:"column:operate_type;comment:'操作类型，借阅或归还'" json:"operate_type"`
+	OperateDate string `gorm:"column:operate_date;comment:'操作日期'" json:"operate_date"`
 }
