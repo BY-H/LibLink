@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"fmt"
 	"liblink/internal/controllers/message"
 	"liblink/internal/global"
 	"liblink/internal/middleware"
@@ -409,4 +410,93 @@ func ReturnArchive(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "归还成功"})
+}
+
+// 批量更新档案状态
+// 目前只支持 xlsx 格式，后续有需要则扩展其他格式进行导入
+func BatchOperateArchives(c *gin.Context) {
+	// 获取当前用户
+	email := middleware.GetEmail(c)
+
+	var currentUser user.User
+	if err := global.DB.Where("email = ?", email).First(&currentUser).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(http.StatusUnauthorized, gin.H{"message": "用户不存在"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "数据库错误"})
+		return
+	}
+
+	file, err := c.FormFile("file")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "文件上传失败", "error": err.Error()})
+		return
+	}
+
+	f, err := file.Open()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "无法打开文件", "error": err.Error()})
+		return
+	}
+	defer f.Close()
+
+	// 使用 excelize 解析
+	xlsx, err := excelize.OpenReader(f)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "读取Excel失败", "error": err.Error()})
+		return
+	}
+
+	// 默认读取第一个sheet
+	sheet := xlsx.GetSheetName(0)
+	rows, err := xlsx.GetRows(sheet)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "读取行失败", "error": err.Error()})
+		return
+	}
+
+	// 批量解析借阅
+	var message []string
+	for i, row := range rows {
+		if i == 0 {
+			continue
+		}
+
+		if len(row) < 2 {
+			message = append(message, "第"+strconv.Itoa(i+1)+"行数据格式错误")
+			continue
+		}
+
+		ctx := context.WithValue(context.Background(), archive.ArchiveOperateUserID, currentUser.Email)
+		err := operateArchive(row[0], ctx, row[1])
+		if err != nil {
+			message = append(message, "第"+strconv.Itoa(i+1)+"行操作失败: "+err.Error())
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "批量操作完成",
+		"detail":  message,
+	})
+}
+
+func operateArchive(contractNo string, ctx context.Context, status string) error {
+	var arch archive.Archive
+	if err := global.DB.Where("contract_no = ?", contractNo).First(&arch).Error; err != nil {
+		return err
+	}
+
+	if arch.BorrowState == status {
+		return fmt.Errorf("档案状态已是 %s", status)
+	}
+
+	arch.BorrowState = status
+	if err := global.DB.WithContext(ctx).
+		Model(&arch).
+		Update("borrow_state", status).Error; err != nil {
+		return err
+	}
+
+	return nil
 }
