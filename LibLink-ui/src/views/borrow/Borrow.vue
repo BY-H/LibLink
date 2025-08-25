@@ -21,6 +21,7 @@
                 </div>
 
                 <div class="right-actions">
+                    <el-button type="primary"> 批量借阅/归还 </el-button>
                     <el-button type="primary" @click="batchImport"> 批量新增 </el-button>
                     <el-button type="primary" @click="openDrawer"> 新增 </el-button>
                 </div>

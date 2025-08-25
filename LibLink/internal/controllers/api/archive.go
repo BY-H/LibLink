@@ -343,29 +343,10 @@ func BorrowArchive(c *gin.Context) {
 		return
 	}
 
-	var arch archive.Archive
-	if err := global.DB.Where("contract_no = ?", contractNo).First(&arch).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
-			c.JSON(http.StatusNotFound, gin.H{"message": "档案不存在"})
-			return
-		}
-		c.JSON(http.StatusInternalServerError, gin.H{"message": "数据库错误"})
-		return
-	}
-
-	// 检查档案是否已被借出
-	if arch.BorrowState == "1" {
-		c.JSON(http.StatusConflict, gin.H{"message": "档案已被借出"})
-		return
-	}
-
-	arch.BorrowState = "1" // 设置为已借出状态
 	ctx := context.WithValue(context.Background(), archive.ArchiveOperateUserID, middleware.GetEmail(c))
-	if err := global.DB.WithContext(ctx).
-		Model(&arch).
-		Update("borrow_state", "1").Error; err != nil {
+	if err := operateArchive(contractNo, ctx, "1"); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": "更新档案状态失败",
+			"message": "借阅档案失败",
 			"error":   err.Error(),
 		})
 		return
@@ -380,30 +361,10 @@ func ReturnArchive(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "缺少合同编号"})
 		return
 	}
-
-	var arch archive.Archive
-	if err := global.DB.Where("contract_no = ?", contractNo).First(&arch).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
-			c.JSON(http.StatusNotFound, gin.H{"message": "档案不存在"})
-			return
-		}
-		c.JSON(http.StatusInternalServerError, gin.H{"message": "数据库错误"})
-		return
-	}
-
-	// 检查档案是否已被借出
-	if arch.BorrowState == "0" {
-		c.JSON(http.StatusConflict, gin.H{"message": "档案未被借出"})
-		return
-	}
-
-	arch.BorrowState = "0" // 设置为已借出状态
 	ctx := context.WithValue(context.Background(), archive.ArchiveOperateUserID, middleware.GetEmail(c))
-	if err := global.DB.WithContext(ctx).
-		Model(&arch).
-		Update("borrow_state", "1").Error; err != nil {
+	if err := operateArchive(contractNo, ctx, "0"); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": "更新档案状态失败",
+			"message": "归还档案失败",
 			"error":   err.Error(),
 		})
 		return
