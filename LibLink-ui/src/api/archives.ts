@@ -39,6 +39,9 @@ export function batchImportArchives(file: File) {
     return request({
         url: '/api/archives/batch_import',
         method: 'post',
+        headers: {
+            'Content-Type': 'multipart/form-data'
+        },
         data: formData
     })
 }
@@ -50,6 +53,9 @@ export function batchOperateArchives(file: File) {
     return request({
         url: '/api/archives/batch_operate',
         method: 'post',
+        headers: {
+            'Content-Type': 'multipart/form-data'
+        },
         data: formData
     })
 }
