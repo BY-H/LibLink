@@ -54,6 +54,7 @@
                         <!-- <el-link type="primary" @click="handleDelete(scope.row)">删除</el-link> -->
                         <el-link v-if="scope.row.borrow_state == 0" type="primary" @click="handleBorrow(scope.row)" style="margin-left: 10px"> 借阅 </el-link>
                         <el-link v-else type="warning" @click="handleReturn(scope.row)" style="margin-left: 10px"> 归还 </el-link>
+                        <el-link style="margin-left: 10px;" type="primary" @click="editRef.open(scope.row)"> 编辑 </el-link>
                     </template>
                 </el-table-column>
             </el-table>
@@ -62,8 +63,8 @@
             <Pagination v-model:pageObj="pageObj" v-model:page-size="pageObj.page_size" :total="total" :onUpdate="fetchData" @update:page-size="handlePageSizeChange" />
         </el-card>
 
-        <!-- 新增抽屉组件 -->
         <BorrowDraw ref="drawerRef" @submit="handleAdd" />
+        <EditArchive ref="editRef" @success="fetchData" />
         <BatchImport
             v-model="batchImportDialogVisible"
             @success="fetchData"
@@ -80,6 +81,7 @@ import { ref, onMounted, reactive, computed } from 'vue'
 import { Reading, Search, Refresh } from '@element-plus/icons-vue'
 import Pagination from '@/components/Pagination.vue'
 import BorrowDraw from './components/BorrowDraw.vue'
+import EditArchive from './components/EditArchive.vue'
 import BatchImport from './components/BatchImport.vue'
 import BatchOperate from './components/BatchOperate.vue'
 import { getArchives, addArchive, borrowArchive, returnArchive } from '@/api/archives'
@@ -196,6 +198,7 @@ const handleReturn = (row: any) => {
 }
 
 const drawerRef = ref()
+const editRef = ref()
 const batchImportDialogVisible = ref(false)
 const batchOperateDialogVisible = ref(false)
 
