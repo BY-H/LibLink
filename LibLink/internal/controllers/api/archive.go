@@ -465,14 +465,9 @@ func operateArchive(contractNo string, ctx context.Context, status string) error
 // UpdateArchive 编辑档案
 func UpdateArchive(c *gin.Context) {
 	// 获取档案ID
-	idStr := c.Param("id")
-	if idStr == "" {
+	contractNo := c.Param("id")
+	if contractNo == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "缺少档案ID"})
-		return
-	}
-	archiveID, err := strconv.Atoi(idStr)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "档案ID无效"})
 		return
 	}
 
@@ -490,7 +485,7 @@ func UpdateArchive(c *gin.Context) {
 
 	// 查找档案
 	var arc archive.Archive
-	if err := global.DB.First(&arc, archiveID).Error; err != nil {
+	if err := global.DB.Where("contract_no = ?", contractNo).First(&arc).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			c.JSON(http.StatusNotFound, gin.H{"message": "档案不存在"})
 			return

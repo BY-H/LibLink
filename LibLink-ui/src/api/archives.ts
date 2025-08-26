@@ -59,3 +59,11 @@ export function batchOperateArchives(file: File) {
         data: formData
     })
 }
+
+export function updateArchive(id: number, data: object) {
+    return request({
+        url: `/api/archives/update/${id}`,
+        method: 'put',
+        data
+    })
+}

@@ -68,7 +68,7 @@
 <script setup lang="ts">
 import { ref, reactive } from "vue"
 import { ElMessage } from "element-plus"
-// import { updateArchive } from "@/api/archives"
+import { updateArchive } from "@/api/archives"
 
 const visible = ref(false)
 const formRef = ref()
@@ -103,7 +103,8 @@ const handleSubmit = () => {
   formRef.value.validate(async (valid: boolean) => {
     if (!valid) return
     try {
-    //   await updateArchive(form)  // 调用 API 更新
+      console.log(form.contract_no)
+      await updateArchive(form.contract_no, form)  // 调用 API 更新
       ElMessage.success("档案更新成功")
       handleClose()
       emit("success")  // 通知父组件刷新数据
