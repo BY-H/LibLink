@@ -40,6 +40,7 @@ func Router() *gin.Engine {
 			archives.POST("/add", api.AddArchive)
 			archives.PATCH("/borrow", api.BorrowArchive)
 			archives.PATCH("/return", api.ReturnArchive)
+			archives.PUT("/update/:id", api.UpdateArchive)
 			archives.POST("/batch_import", api.BatchImportArchives)
 			archives.POST("/batch_operate", api.BatchOperateArchives)
 		}

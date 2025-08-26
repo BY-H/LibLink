@@ -461,3 +461,79 @@ func operateArchive(contractNo string, ctx context.Context, status string) error
 
 	return nil
 }
+
+// UpdateArchive 编辑档案
+func UpdateArchive(c *gin.Context) {
+	// 获取档案ID
+	idStr := c.Param("id")
+	if idStr == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "缺少档案ID"})
+		return
+	}
+	archiveID, err := strconv.Atoi(idStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "档案ID无效"})
+		return
+	}
+
+	// 获取当前用户信息
+	email := middleware.GetEmail(c)
+	var currentUser user.User
+	if err := global.DB.Where("email = ?", email).First(&currentUser).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(http.StatusUnauthorized, gin.H{"message": "用户不存在"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "数据库错误"})
+		return
+	}
+
+	// 查找档案
+	var arc archive.Archive
+	if err := global.DB.First(&arc, archiveID).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(http.StatusNotFound, gin.H{"message": "档案不存在"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "数据库错误"})
+		return
+	}
+
+	// 绑定请求参数
+	var req struct {
+		Title       string `json:"title"`
+		Name        string `json:"name"`
+		IDCard      string `json:"id_card"`
+		InstNo      string `json:"inst_no"`
+		Manager     string `json:"manager"`
+		Amount      string `json:"amount"`
+		ArcType     string `json:"arc_type"`
+		StorageDate string `json:"storage_date"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "请求参数错误", "error": err.Error()})
+		return
+	}
+
+	// 更新数据
+	updates := map[string]interface{}{
+		"title":        req.Title,
+		"name":         req.Name,
+		"id_card":      req.IDCard,
+		"inst_no":      req.InstNo,
+		"manager":      req.Manager,
+		"amount":       req.Amount,
+		"arc_type":     req.ArcType,
+		"storage_date": req.StorageDate,
+	}
+
+	if err := global.DB.Model(&arc).Updates(updates).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "更新档案失败", "error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "档案更新成功",
+		"data":    arc,
+	})
+}
