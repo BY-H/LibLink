@@ -4,9 +4,9 @@
             <el-col :span="24">
                 <el-card class="box-card">
                     <div slot="header" class="clearfix">
-                        <span>欢迎来到 LibLink</span>
+                        <span>沙县农商银行档案管理系统</span>
                     </div>
-                    <div class="text item">欢迎使用 LibLink 管理文献</div>
+                    <div class="text item">欢迎使用 沙县农商银行档案管理系统 管理文献</div>
                 </el-card>
             </el-col>
         </el-row>
