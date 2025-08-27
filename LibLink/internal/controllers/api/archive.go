@@ -153,8 +153,12 @@ func GetArchives(c *gin.Context) {
 
 	type archRequest struct {
 		message.RequestMsg
-		ContractNo string `json:"contract_no" form:"contract_no"`
+		ContractNo  string `json:"contract_no" form:"contract_no"`
+		ArcType     string `json:"arc_type" form:"arc_type"`
+		InstNo      string `json:"inst_no" form:"inst_no"`
+		BorrowState string `json:"borrow_state" form:"borrow_state"`
 	}
+
 	var request archRequest
 	if err := c.ShouldBindQuery(&request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "请求参数错误", "error": err.Error()})
@@ -166,6 +170,18 @@ func GetArchives(c *gin.Context) {
 	// 筛选字段
 	if request.ContractNo != "" {
 		db = db.Where("contract_no LIKE ?", "%"+request.ContractNo+"%")
+	}
+
+	if request.ArcType != "" {
+		db = db.Where("arc_type = ?", request.ArcType)
+	}
+
+	if request.InstNo != "" {
+		db = db.Where("inst_no = ?", request.InstNo)
+	}
+
+	if request.BorrowState != "" {
+		db = db.Where("borrow_state = ?", request.BorrowState)
 	}
 
 	// 自动分页

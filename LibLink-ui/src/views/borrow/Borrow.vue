@@ -11,11 +11,25 @@
             <!-- 搜索 + 新增操作区域 -->
             <div class="table-actions">
                 <div class="search-form">
-                    <el-input v-model="searchContractNo" placeholder="请输入合同编号进行搜索" clearable style="width: 300px" @keyup.enter="handleSearch">
+                    <el-input v-model="searchContractNo" placeholder="合同编号" clearable style="width: 180px" @keyup.enter="handleSearch">
                         <template #prefix>
                             <el-icon><Search /></el-icon>
                         </template>
                     </el-input>
+                    <el-select v-model="searchArcType" placeholder="合同类型" clearable style="width: 100px">
+                        <el-option label="个贷" value="个贷" />
+                        <el-option label="公贷" value="公贷" />
+                        <el-option label="信用卡" value="信用卡" />
+                    </el-select>
+                    <el-input v-model="searchInstNo" placeholder="网点编号" clearable style="width: 140px" @keyup.enter="handleSearch">
+                        <template #prefix>
+                            <el-icon><Search /></el-icon>
+                        </template>
+                    </el-input>
+                    <el-select v-model="searchBorrowState" placeholder="借阅状态" clearable style="width: 100px">
+                        <el-option label="已借阅" value="1" />
+                        <el-option label="未借阅" value="0" />
+                    </el-select>
                     <el-button type="primary" @click="handleSearch" :icon="Search"> 搜索 </el-button>
                     <el-button @click="resetSearch" :icon="Refresh"> 重置 </el-button>
                 </div>
@@ -88,16 +102,9 @@ import { getArchives, addArchive, borrowArchive, returnArchive } from '@/api/arc
 
 // 搜索关键词
 const searchContractNo = ref('')
-
-// 搜索表单
-const searchForm = reactive({
-    file_no: '',
-    contract_no: '',
-    arc_type: '',
-    inst_no: '',
-    name: '',
-    borrow_state: ''
-})
+const searchArcType = ref('')
+const searchInstNo = ref('')
+const searchBorrowState = ref('')
 
 // 表格数据
 const tableData = ref<any[]>([])
@@ -128,6 +135,18 @@ const fetchData = async () => {
         // 添加搜索参数
         if (searchContractNo.value.trim()) {
             params.contract_no = searchContractNo.value.trim()
+        }
+
+        if (searchArcType.value) {
+            params.arc_type = searchArcType.value
+        }
+
+        if (searchInstNo.value.trim()) {
+            params.inst_no = searchInstNo.value.trim()
+        }
+
+        if (searchBorrowState.value) {
+            params.borrow_state = searchBorrowState.value
         }
 
         console.log('请求参数:', params)
