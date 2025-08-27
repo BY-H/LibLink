@@ -51,10 +51,10 @@
                 <!-- 操作列 -->
                 <el-table-column label="操作" width="180">
                     <template #default="scope">
-                        <!-- <el-link type="primary" @click="handleDelete(scope.row)">删除</el-link> -->
                         <el-link v-if="scope.row.borrow_state == 0" type="primary" @click="handleBorrow(scope.row)" style="margin-left: 10px"> 借阅 </el-link>
                         <el-link v-else type="warning" @click="handleReturn(scope.row)" style="margin-left: 10px"> 归还 </el-link>
                         <el-link style="margin-left: 10px;" type="primary" @click="editRef.open(scope.row)"> 编辑 </el-link>
+                        <el-link style="margin-left: 10px;" type="primary" @click="handlePrint(scope.row)"> 打印 </el-link>
                     </template>
                 </el-table-column>
             </el-table>
@@ -194,6 +194,34 @@ const handleReturn = (row: any) => {
         row.borrow_state = '0' // 更新状态为未借阅
     } catch (error) {
         console.error('归还失败：', error)
+    }
+}
+
+const handlePrint = (row: any) => {
+    const printContent = `
+        <div>
+            <h1>档案信息</h1>
+            <p><strong>档案编号:</strong> ${row.file_no} <strong>档案类型:</strong> ${row.arc_type}</p>
+            <p><strong>合同编号:</strong> ${row.contract_no} <strong>姓名:</strong> ${row.name}</p>
+            <p><strong>身份证号:</strong> ${row.id_card} <strong>网点编号:</strong> ${row.inst_no}</p>
+            <p><strong>客户经理:</strong> ${row.manager}<strong>合同金额:</strong> ${row.amount}</p>
+            <p><strong>入库日期:</strong> ${row.storage_date}</p>
+        </div>
+    `
+    const printWindow = window.open('', '', 'width=800,height=400')
+    if (printWindow) {
+        printWindow.document.write(`
+            <html>
+                <head>
+                    <title>打印档案信息</title>
+                </head>
+                <body>
+                    ${printContent}
+                </body>
+            </html>
+        `)
+        printWindow.document.close()
+        printWindow.print()
     }
 }
 
