@@ -2,15 +2,16 @@ package global
 
 import (
 	"fmt"
-	"go.uber.org/zap"
-	"gorm.io/gorm"
 	"liblink/config"
 	"liblink/internal/db"
 	"os"
+
+	"go.uber.org/zap"
+	"gorm.io/gorm"
 )
 
 var (
-	Env     string       = "test" // 工作环境（main, test） TODO 之后得整合到环境变量中
+	Env     string       = "main" // 工作环境（main, test） TODO 之后得整合到环境变量中
 	WorkDir string                // 工作路径
 	Conf    *config.Conf          // 配置文件
 	DB      *gorm.DB              // 数据库连接

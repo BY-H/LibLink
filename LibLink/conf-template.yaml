@@ -1,0 +1,8 @@
+database-host: 'db:3306'
+database-user: 'liblink'
+database-password: 'liblink'
+
+jwt-key: 'B#CSwih,f;&Ai&H4TMZ0B.vIk==4ufc#'
+
+host: 'localhost'
+port: ':1020'

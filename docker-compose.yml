@@ -1,0 +1,59 @@
+version: "3.9"
+
+services:
+  backend:
+    build:
+      context: ./LibLink # 后端 Dockerfile 所在目录
+      dockerfile: Dockerfile
+    container_name: liblink-backend
+    ports:
+      - "1020:1020" # Go 服务监听的端口
+    environment:
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_USER=liblink
+      - DB_PASSWORD=liblink
+      - DB_NAME=liblink
+    volumes:
+      - ./LibLink/main-conf.yaml:/app/main-conf.yaml:ro
+    depends_on:
+      - db
+    networks:
+      - liblink-net
+    restart: always
+
+  frontend:
+    build:
+      context: ./LibLink-ui # 前端 Dockerfile 所在目录
+      dockerfile: Dockerfile
+    container_name: liblink-frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+    networks:
+      - liblink-net
+    restart: always
+
+  db:
+    image: mysql:8.0
+    container_name: liblink-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_DATABASE: liblink
+      MYSQL_USER: liblink
+      MYSQL_PASSWORD: liblink
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - liblink-net
+
+networks:
+  liblink-net:
+    driver: bridge
+
+volumes:
+  db_data:

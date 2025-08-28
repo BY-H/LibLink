@@ -13,8 +13,12 @@ WORKDIR /build
 ADD go.mod .
 ADD go.sum .
 RUN go mod download
+
 COPY . .
+
 RUN go build -ldflags="-s -w" -o /app/server ./cmd/liblink/main.go
+
+RUN mkdir -p /app/static && cp -r static/* /app/static/
 
 
 FROM scratch
@@ -24,7 +28,10 @@ COPY --from=builder /usr/share/zoneinfo/Asia/Shanghai /usr/share/zoneinfo/Asia/S
 ENV TZ Asia/Shanghai
 
 WORKDIR /app
+
 COPY --from=builder /app/server /app/server
 COPY --from=builder /build/test-conf.yaml /app/test-conf.yaml
+
+COPY --from=builder /app/static /app/static
 
 CMD ["./server"]
